@@ -63,11 +63,11 @@ class StateWhere(State):
 
     def _parse_comparison(self, doc: SQLQueryDocument, tokens: list[str]):
         lhs, operator, rhs = tokens[0:3]
-        mapped_operator = StateWhere.comparison_operator_map.get(operator)
+        mapped_operator = StateWhere.comparison_operator_map.get(operator.lower())
         if not mapped_operator:
             raise RuntimeError(f"Unsupported comparison operator: {operator}")
 
-        if lhs == "id":
+        if lhs.lower() == "id":
             if mapped_operator != "eq":
                 raise RuntimeError(f"operator {operator} is not supported when used with id")
             self._add_id_field(doc, rhs)
@@ -76,7 +76,7 @@ class StateWhere(State):
 
         # If next token is AND, recurse
         if len(tokens) > 3:
-            if tokens[3] == "and":
+            if tokens[3].lower() == "and":
                 self.parse(doc, tokens[4:])
             else:
                 self.read_next_token(doc, tokens[3:], StateWhere.state_map)
@@ -94,7 +94,7 @@ class StateWhere(State):
 
         # If next token is AND, recurse
         if len(tokens) > 5:
-            if tokens[5] == "and":
+            if tokens[5].lower() == "and":
                 self.parse(doc, tokens[6:])
             else:
                 self.read_next_token(doc, tokens[5:], StateWhere.state_map)

@@ -5,12 +5,14 @@ from dfi.errors import InvalidQueryDocument
 from dfi.services.sql_state.state import SQLQueryDocument
 from dfi.services.sql_state.state_select import StateSelect
 from dfi.services.sql_state.state_insert import StateInsert
+from dfi.services.sql_state.state_explain import StateExplain
 
 
 class QueryDocumentBuilder:
     state_map = {
         "select": StateSelect,
-        "insert": StateInsert,
+        # "insert": StateInsert,
+        # "explain": StateExplain,
     }
 
     def __init__(self, sql: str):
