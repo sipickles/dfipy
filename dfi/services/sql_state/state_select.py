@@ -40,5 +40,4 @@ class StateSelect(State):
                 else:
                     doc[sub_dict_name].update(sub_dict)
 
-        # self.read_next_token(doc, tokens[i:], StateSelect.valid_next_keywords)
         return tokens[i:], StateSelect.valid_next_keywords

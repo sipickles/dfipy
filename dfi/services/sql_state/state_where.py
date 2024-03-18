@@ -57,14 +57,8 @@ class StateWhere(State):
             tokens[0] = token
             if len(split_token[1]):
                 tokens.insert(1, split_token[1])
-        # state = StateWhere.valid_geometry[token]()
-        # state.parse(doc, tokens[1:])
-        return tokens, StateWhere.valid_geometry
 
-        # # check for any further ANDs
-        # if len(tokens):
-        #     if tokens[0].lower() == "and":
-        #         self.parse(doc, tokens[4:])
+        return tokens, StateWhere.valid_geometry
 
     def _parse_comparison(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         lhs, operator, rhs = tokens[0:3]
@@ -81,13 +75,6 @@ class StateWhere(State):
 
         return tokens[4:], StateWhere.valid_next_keywords
 
-        # # If next token is AND, recurse
-        # if len(tokens) > 3:
-        #     if tokens[3].lower() == "and":
-        #         self.parse(doc, tokens[4:])
-        #     else:
-        #         self.read_next_token(doc, tokens[3:], StateWhere.state_map)
-
     def _parse_range(self, doc: SQLQueryDocument, tokens: list[str]):
         lhs, operator, range_min, _, range_max = tokens[0:5]
         mapped_operator = StateWhere.range_operator_map.get(operator.lower())
@@ -98,13 +85,6 @@ class StateWhere(State):
             self._add_time_field(doc, mapped_operator, range_min, range_max)
         else:
             self._add_range_field(doc, lhs, mapped_operator, range_min, range_max)
-
-        # # If next token is AND, recurse
-        # if len(tokens) > 5:
-        #     if tokens[5].lower() == "and":
-        #         self.parse(doc, tokens[6:])
-        #     else:
-        #         self.read_next_token(doc, tokens[5:], StateWhere.valid_next_state)
 
         return tokens[5:], StateWhere.valid_next_keywords
 

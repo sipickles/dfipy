@@ -8,5 +8,4 @@ class StateFrom(State):
         doc.dataset_id = self.strip_quotes(tokens[0])
 
         # Skip the table/dataset
-        # self.read_next_token(doc, tokens[1:], StateFrom.valid_states)
         return tokens[1:], StateFrom.valid_states
