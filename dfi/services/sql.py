@@ -18,7 +18,8 @@ class QueryDocumentBuilder:
     def __init__(self, sql: str):
         self.document = SQLQueryDocument()
 
-        statements = sql.split(";")
+        statements = [x.strip() for x in sql.split(";")]
+
         if len(statements) > 1 and len(statements[1]):
             raise RuntimeError("Only a single sql statement is supported")
 
@@ -26,7 +27,8 @@ class QueryDocumentBuilder:
         self._parse()
 
     def _tokenise(self, statement: str):
-        self.tokens = statement.strip().split()
+        # Don't lowercase every token as some references use mixed case
+        self.tokens = [x.strip() for x in statement.split()]
         self._group_quoted_strings()
 
     def _group_quoted_strings(self):

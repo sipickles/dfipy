@@ -57,7 +57,8 @@ class StateWhere(State):
             split_token = token.split("((")
             token = split_token[0].lower()
             tokens[0] = token
-            tokens.insert(1, split_token[1])
+            if len(split_token[1]):
+                tokens.insert(1, split_token[1])
         state = StateWhere.geometry_map[token]()
         state.parse(doc, tokens[1:])
 

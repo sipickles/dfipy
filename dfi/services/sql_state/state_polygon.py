@@ -12,6 +12,9 @@ class StatePolygon(State):
         for i in range(2, len(tokens)):
             if "))" in tokens[i]:
                 tokens[i] = tokens[i].replace(")", "")
+                if not len(tokens[i]):
+                    del tokens[i]
+                    i -= 1
                 break
 
         if i % 2 == 0:

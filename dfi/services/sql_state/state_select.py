@@ -24,6 +24,7 @@ class StateSelect(State):
 
         # Look for next keyword
         for i, token in enumerate(tokens):
+            token = token.lower()
             if token not in StateSelect.state_map.keys():
                 columns.append(token.replace(",", "").strip())
             else:
