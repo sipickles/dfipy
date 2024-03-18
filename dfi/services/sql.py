@@ -5,10 +5,6 @@ from dfi.errors import InvalidQueryDocument
 from dfi.services.sql_state.state import SQLQueryDocument
 from dfi.services.sql_state.state_map import get_state_map
 
-# from dfi.services.sql_state.state_select import StateSelect
-# from dfi.services.sql_state.state_insert import StateInsert
-# from dfi.services.sql_state.state_explain import StateExplain
-
 
 class QueryDocumentBuilder:
     valid_next_keywords = [
