@@ -1,11 +1,10 @@
 from dfi.services.sql_state.state import State, SQLQueryDocument
-from dfi.services.sql_state.state_from import StateFrom
 
 
 class StateSelect(State):
-    state_map = {
-        "from": StateFrom,
-    }
+    valid_next_keywords = [
+        "from",
+    ]
 
     valid_columns = {
         "count": [("return", {"type": "count"})],
@@ -25,7 +24,7 @@ class StateSelect(State):
         # Look for next keyword
         for i, token in enumerate(tokens):
             token = token.lower()
-            if token not in StateSelect.state_map.keys():
+            if token not in StateSelect.valid_next_keywords:
                 columns.append(token.replace(",", "").strip())
             else:
                 break
@@ -41,4 +40,4 @@ class StateSelect(State):
                 else:
                     doc[sub_dict_name].update(sub_dict)
 
-        self.read_next_token(doc, tokens[i:], StateSelect.state_map)
+        return tokens[i:], StateSelect.valid_next_keywords
