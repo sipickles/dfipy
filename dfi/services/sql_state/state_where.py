@@ -1,16 +1,14 @@
 from dfi.services.sql_state.state import State, SQLQueryDocument
-from dfi.services.sql_state.state_polygon import StatePolygon
-from dfi.services.sql_state.state_group_by import StateGroupBy
 
 
 class StateWhere(State):
-    state_map = {
-        "group": StateGroupBy,
-    }
+    valid_next_keywords = [
+        "group",
+    ]
 
-    geometry_map = {
-        "polygon": StatePolygon,
-    }
+    valid_geometry = [
+        "polygon",
+    ]
 
     comparison_operator_map = {
         "=": "eq",
@@ -29,7 +27,7 @@ class StateWhere(State):
         "in": None,  # unsupported
     }
 
-    def parse(self, doc: SQLQueryDocument, tokens: list[str]):
+    def parse(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         # Handle case with no spaces around operator
         for op in StateWhere.comparison_operator_map:
             if op in tokens[0]:
@@ -42,16 +40,16 @@ class StateWhere(State):
         lhs = tokens[0].lower()
         operator = tokens[1].lower()
 
-        if lhs[0:7] in StateWhere.geometry_map:
-            self._parse_geometry(doc, tokens)
+        if lhs[0:7] in StateWhere.valid_geometry:
+            return self._parse_geometry(doc, tokens)
         elif operator in StateWhere.comparison_operator_map:
-            self._parse_comparison(doc, tokens)
+            return self._parse_comparison(doc, tokens)
         elif operator in StateWhere.range_operator_map:
-            self._parse_range(doc, tokens)
+            return self._parse_range(doc, tokens)
         else:
             raise RuntimeError(f"Unknown operator: {operator}")
 
-    def _parse_geometry(self, doc: SQLQueryDocument, tokens: list[str]):
+    def _parse_geometry(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         token = tokens[0]
         if "((" in token:
             split_token = token.split("((")
@@ -59,10 +57,16 @@ class StateWhere(State):
             tokens[0] = token
             if len(split_token[1]):
                 tokens.insert(1, split_token[1])
-        state = StateWhere.geometry_map[token]()
-        state.parse(doc, tokens[1:])
+        # state = StateWhere.valid_geometry[token]()
+        # state.parse(doc, tokens[1:])
+        return tokens, StateWhere.valid_geometry
 
-    def _parse_comparison(self, doc: SQLQueryDocument, tokens: list[str]):
+        # # check for any further ANDs
+        # if len(tokens):
+        #     if tokens[0].lower() == "and":
+        #         self.parse(doc, tokens[4:])
+
+    def _parse_comparison(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         lhs, operator, rhs = tokens[0:3]
         mapped_operator = StateWhere.comparison_operator_map.get(operator.lower())
         if not mapped_operator:
@@ -75,16 +79,18 @@ class StateWhere(State):
         else:
             self._add_comparison_field(doc, lhs, mapped_operator, rhs)
 
-        # If next token is AND, recurse
-        if len(tokens) > 3:
-            if tokens[3].lower() == "and":
-                self.parse(doc, tokens[4:])
-            else:
-                self.read_next_token(doc, tokens[3:], StateWhere.state_map)
+        return tokens[4:], StateWhere.valid_next_keywords
+
+        # # If next token is AND, recurse
+        # if len(tokens) > 3:
+        #     if tokens[3].lower() == "and":
+        #         self.parse(doc, tokens[4:])
+        #     else:
+        #         self.read_next_token(doc, tokens[3:], StateWhere.state_map)
 
     def _parse_range(self, doc: SQLQueryDocument, tokens: list[str]):
         lhs, operator, range_min, _, range_max = tokens[0:5]
-        mapped_operator = StateWhere.range_operator_map.get(operator)
+        mapped_operator = StateWhere.range_operator_map.get(operator.lower())
         if not mapped_operator:
             raise RuntimeError(f"Unsupported range operator: {operator}")
 
@@ -93,12 +99,14 @@ class StateWhere(State):
         else:
             self._add_range_field(doc, lhs, mapped_operator, range_min, range_max)
 
-        # If next token is AND, recurse
-        if len(tokens) > 5:
-            if tokens[5].lower() == "and":
-                self.parse(doc, tokens[6:])
-            else:
-                self.read_next_token(doc, tokens[5:], StateWhere.state_map)
+        # # If next token is AND, recurse
+        # if len(tokens) > 5:
+        #     if tokens[5].lower() == "and":
+        #         self.parse(doc, tokens[6:])
+        #     else:
+        #         self.read_next_token(doc, tokens[5:], StateWhere.valid_next_state)
+
+        return tokens[5:], StateWhere.valid_next_keywords
 
     def _add_id_field(self, doc: SQLQueryDocument, rhs: str):
         self.prep_filter_dict(doc, "id")

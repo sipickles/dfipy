@@ -3,17 +3,19 @@ from dfi.services.query import Query
 from dfi.errors import InvalidQueryDocument
 
 from dfi.services.sql_state.state import SQLQueryDocument
-from dfi.services.sql_state.state_select import StateSelect
-from dfi.services.sql_state.state_insert import StateInsert
-from dfi.services.sql_state.state_explain import StateExplain
+from dfi.services.sql_state.state_map import get_state_map
+
+# from dfi.services.sql_state.state_select import StateSelect
+# from dfi.services.sql_state.state_insert import StateInsert
+# from dfi.services.sql_state.state_explain import StateExplain
 
 
 class QueryDocumentBuilder:
-    state_map = {
-        "select": StateSelect,
-        # "insert": StateInsert,
-        # "explain": StateExplain,
-    }
+    valid_next_keywords = [
+        "select",
+        # "insert",
+        # "explain",
+    ]
 
     def __init__(self, sql: str):
         self.document = SQLQueryDocument()
@@ -24,7 +26,12 @@ class QueryDocumentBuilder:
             raise RuntimeError("Only a single sql statement is supported")
 
         self._tokenise(statements[0])
-        self._parse()
+
+        valid_next_keywords = QueryDocumentBuilder.valid_next_keywords
+        tokens = self.tokens
+
+        while len(tokens):
+            tokens, valid_next_keywords = self._parse(tokens, valid_next_keywords)
 
     def _tokenise(self, statement: str):
         # Don't lowercase every token as some references use mixed case
@@ -44,11 +51,12 @@ class QueryDocumentBuilder:
 
         self.tokens = tokens
 
-    def _parse(self):
-        token = self.tokens[0].lower()
-        if token in QueryDocumentBuilder.state_map:
-            state = QueryDocumentBuilder.state_map[token]()
-            state.parse(self.document, self.tokens[1:])
+    def _parse(self, tokens: list[str], valid_next_keywords: list[str]) -> tuple:
+        token = tokens[0].lower()
+        if token in valid_next_keywords:
+            state_map = get_state_map()
+            state = state_map[token]()
+            return state.parse(self.document, tokens[1:])
         else:
             raise RuntimeError(f"Unknown first keyword: {token}")
 

@@ -7,7 +7,12 @@ class StatePolygon(State):
     https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
     """
 
-    def parse(self, doc: SQLQueryDocument, tokens: list[str]):
+    # these signify the end of a list of vertices
+    valid_next_keywords = [
+        "and",
+    ]
+
+    def parse(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         # Strip end-brackets
         for i in range(2, len(tokens)):
             if "))" in tokens[i]:
@@ -23,6 +28,9 @@ class StatePolygon(State):
         vertices = []
 
         for j in range(0, len(tokens), 2):
+            if tokens[j].lower() in StatePolygon.valid_next_keywords:
+                break
+
             x = self.cleanup_type(tokens[j])
             y = self.cleanup_type(tokens[j + 1])
             vertices.append([x, y])
@@ -33,3 +41,5 @@ class StatePolygon(State):
             "coordinates": vertices,
             "type": "Polygon",
         }
+
+        return tokens[j:], StatePolygon.valid_next_keywords

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+from dfi.services.sql_state.state_map import get_state_map
+
 
 class SQLQueryDocument(dict):
     def __init__(self) -> None:
@@ -10,17 +12,19 @@ class SQLQueryDocument(dict):
 
 class State(ABC):
     @abstractmethod
-    def parse(self, doc: SQLQueryDocument, tokens: list[str]):
+    def parse(self, doc: SQLQueryDocument, tokens: list[str]) -> tuple:
         pass
 
     @staticmethod
-    def read_next_token(doc: SQLQueryDocument, tokens: list[str], state_map: dict):
+    def read_next_token(doc: SQLQueryDocument, tokens: list[str], keywords: list[str]):
         if not tokens:
             return
 
         token = tokens[0].lower()
 
-        if token in state_map:
+        state_map = get_state_map()
+
+        if token in keywords:
             state = state_map[token]()
             state.parse(doc, tokens[1:])
         else:
