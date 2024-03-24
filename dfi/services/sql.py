@@ -107,7 +107,6 @@ class QueryDocumentBuilder:
             filter_fields=filter_field_list,
             geometry=geometry,
             time_range=time_range,
-            # includes=includes, # Missing in dfipy 8.0.0
         )
     
     def _query(self, tree: dict):
