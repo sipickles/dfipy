@@ -4,7 +4,9 @@ import json
 import logging
 import os
 import time
+from collections.abc import Generator
 from dataclasses import dataclass
+from typing import Any
 
 import pytest
 
@@ -19,10 +21,14 @@ DATASETS_API_URL = os.environ["DFI_DATASETS_API_URL"]
 USERS_IDENTITIES_API_URL = os.environ["DFI_USERS_API_URL"]
 
 TEST_DATASET_S3_BUCKET = "dev-ta-platform-dev-datasets"
-TEST_DATASET_S3_PREFIX = "test/integration-tests/100k_with_filter_fields_epoc_2023-11-08"
+TEST_DATASET_S3_PREFIX = (
+    "test/integration-tests/100k_with_filter_fields_epoc_2023-11-08"
+)
 TEST_DATASET_S3_REGION = "eu-west-2"
 DATASET_DEFINITION = "integration_tests/datasets/test-dataset.json"
-AWS_PROFILE = os.environ["AWS_PROFILE"]  # TODO change this once dev-ops have enabled AWS SSO access
+AWS_PROFILE = os.environ[
+    "AWS_PROFILE"
+]  # TODO change this once dev-ops have enabled AWS SSO access
 
 NUM_RECORDS = 99_999
 
@@ -61,7 +67,7 @@ def get_dataset_id(value_store: ValueStore) -> str:
 
 
 @pytest.fixture(name="dataset_schema", scope="module")
-def get_dataset_schema(dataset_id: str) -> str:
+def get_dataset_schema(dataset_id: str) -> dict[str, Any]:
     dfi_datasets = Client(TOKEN, DATASETS_API_URL)
     return dfi_datasets.datasets.get_schema(dataset_id)
 
@@ -71,7 +77,9 @@ def get_dfi_client() -> Client:
     return Client(TOKEN, QUERY_URL)
 
 
-def import_test_data(dfi: Client, dataset_id: str, s3_presigner: S3URLPresigner, value_store: ValueStore) -> None:
+def import_test_data(
+    dfi: Client, dataset_id: str, s3_presigner: S3URLPresigner, value_store: ValueStore
+) -> None:
     prefix = TEST_DATASET_S3_PREFIX
     signed_urls = s3_presigner.generate_presigned_urls(prefix, ".csv", expiration=5)
     source = BatchURLFiles(signed_urls)
@@ -89,7 +97,9 @@ def import_test_data(dfi: Client, dataset_id: str, s3_presigner: S3URLPresigner,
         transportation_mode=9,
     )
 
-    report = dfi.ingest.put_batch(dataset_id=dataset_id, source=source, file_format=csv_format, dry_run=False)
+    report = dfi.ingest.put_batch(
+        dataset_id=dataset_id, source=source, file_format=csv_format, dry_run=False
+    )
 
     assert isinstance(report, dict)
     assert report["status"] == "created"
@@ -109,7 +119,9 @@ def import_test_data(dfi: Client, dataset_id: str, s3_presigner: S3URLPresigner,
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown(dataset_name: str, s3_presigner: S3URLPresigner, value_store: ValueStore) -> None:
+def setup_teardown(
+    dataset_name: str, s3_presigner: S3URLPresigner, value_store: ValueStore
+) -> Generator[Any, Any, Any]:
     """Fixture to setup and teardown the dfi for the tests in this module.
 
     Setup:
@@ -132,8 +144,8 @@ def setup_teardown(dataset_name: str, s3_presigner: S3URLPresigner, value_store:
 
     # Truncate the DFI (default dataset on dev-env startup)
     _logger.info("Truncating data...")
-    dfi_query.delete.truncate(DATASET_ID)
-    count = dfi_query.query.record_counts(DATASET_ID)
+    dfi_query.query.manage(DATASET_ID, operation="truncate")
+    count = dfi_query.query.count(DATASET_ID)
     assert count == 0
 
     # Create dataset with schema pointing to the DFI
@@ -155,9 +167,15 @@ def setup_teardown(dataset_name: str, s3_presigner: S3URLPresigner, value_store:
 
     _logger.info("Setting permissions...")
     identity = dfi_users_identities.identities.get_my_identity()
-    write_permission = {"type": "writer", "scope": "identity", "identityId": identity["id"]}
+    write_permission = {
+        "type": "writer",
+        "scope": "identity",
+        "identityId": identity["id"],
+    }
 
-    _ = dfi_datasets.datasets.add_permissions(dataset_id=dataset_id, permissions=[write_permission])
+    _ = dfi_datasets.datasets.add_permissions(
+        dataset_id=dataset_id, permissions=[write_permission]
+    )
     my_permissions = dfi_datasets.datasets.get_my_permissions(dataset_id=dataset_id)
 
     assert my_permissions["write"] is True
@@ -173,8 +191,8 @@ def setup_teardown(dataset_name: str, s3_presigner: S3URLPresigner, value_store:
     _logger.info("TEARDOWN")
 
     # Truncate DFI
-    dfi_query.delete.truncate(dataset_id)
-    count = dfi_query.query.record_counts(dataset_id)
+    dfi_query.query.manage(DATASET_ID, operation="truncate")
+    count = dfi_query.query.count(dataset_id)
     assert count == 0
 
     # Delete Dataset

@@ -1,7 +1,6 @@
 """TimeRange filter describes how to filter on time."""
 
 from datetime import datetime, timezone
-from typing import TypeAlias
 
 from typing_extensions import Self
 
@@ -9,13 +8,6 @@ from dfi.errors import TimeRangeMismatchError, TimeRangeUndefinedError, TimeZone
 
 # DATETIME_MIN = 0
 # DATETIME_MAX = 2_147_483_647
-
-# TODO: Deprecated
-TimeInterval: TypeAlias = tuple[datetime | None, datetime | None]
-"""Alias for `tuple[Optional[datetime], Optional[datetime]]`
-
-- ex: `( datetime(2022, 1, 1, 0, 0, 0), datetime(2022, 1, 1, 12, 0, 0) )`
-"""
 
 
 class TimeRange:
@@ -55,20 +47,35 @@ class TimeRange:
     def from_datetimes(self, min_time: datetime | None = None, max_time: datetime | None = None) -> Self:
         """Create a TimeRange from `datetime` objects.
 
-        :param min_time:
-        :param max_time:
-        :return: `TimeRange`
-        :raises:
-            - `TimeRangeOutOfBoundsError`
-            - `TimeRangeMismatchError`
-            - `TypeError`
-        :example:
+        Parameters
+        ----------
+        min_time:
+            Lower time bound.
+        max_time:
+            Upper time bound.
+
+        Returns
+        -------
+        TimeRange
+
+        Raises
+        ------
+        TimeRangeUndefinedError
+        TimeRangeMismatchError
+        TypeError
+
+        Examples
+        --------
         ### TimeRange From `datetime`s
         ```python
         from datetime import datetime, timezone
 
-        min_time = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-        min_time = datetime(2020, 1, 1, 0, 0, 1, tzinfo=timezone.utc)
+        min_time = datetime(
+            2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc
+        )
+        min_time = datetime(
+            2020, 1, 1, 0, 0, 1, tzinfo=timezone.utc
+        )
 
         TimeRange().from_datetimes(min_time, max_time)
         ```
@@ -97,21 +104,36 @@ class TimeRange:
     def from_strings(self, min_time: str | None = None, max_time: str | None = None) -> Self:
         """Create a TimeRange from [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) strings.
 
-        :param min_time:
-        :param max_time:
-        :return: `TimeRange`
-        :raises:
-            - `TimeRangeOutOfBoundsError`
-            - `TimeRangeMismatchError`
-            - `TypeError`
-        :example:
-        :::{attention}
-        Creating datetimes from strings in Zulu time (e.g. `"2024-02-06T10:41:54Z"`) are not supported in 3.10
-        :::
+        Parameters
+        ----------
+        min_time:
+            Lower time bound.
+        max_time:
+            Upper time bound.
+
+        Returns
+        -------
+        TimeRange
+
+        Raises
+        ------
+        TimeRangeUndefinedError
+        TimeRangeMismatchError
+        TypeError
+
+        Examples
+        --------
+        ??? attention
+
+            Creating datetimes from strings in Zulu time (e.g. `"2024-02-06T10:41:54Z"`) are not supported in Python 3.10
+
 
         ### TimeRange From Strings
         ```python
-        TimeRange().from_strings("2020-01-01T00:00:00.001000+00:00", "2020-01-01T00:00:01.001000+00:00")
+        TimeRange().from_strings(
+            "2020-01-01T00:00:00.001000+00:00",
+            "2020-01-01T00:00:01.001000+00:00",
+        )
         ```
         ```python
         TimeRange(2020-01-01T00:00:00+01:00, 2020-01-01T00:00:01+01:00)
@@ -140,15 +162,27 @@ class TimeRange:
     ) -> Self:
         """Create a TimeRange from integers representing Unix Epoch in milliseconds.
 
-        :param min_time: The minimum time bound if any.
-        :param max_time: The maximum time bound if any.
-        :param tz: The timezone for the datetime.  Defaults to UTC.
-        :return: `TimeRange`
-        :raises:
-            - `TimeRangeOutOfBoundsError`
-            - `TimeRangeMismatchError`
-            - `TypeError`
-        :example:
+        Parameters
+        ----------
+        min_time:
+            Lower time bound.
+        max_time:
+            Upper time bound.
+        tz:
+            The timezone for the datetime.  Defaults to UTC.
+
+        Returns
+        -------
+        TimeRange
+
+        Raises
+        ------
+        TimeRangeUndefinedError
+        TimeRangeMismatchError
+        TypeError
+
+        Examples
+        --------
         ### TimeRange From Milliseconds Since Unix Epoch
         ```python
         TimeRange().from_millis(1577836800000, 1577836801000)
@@ -178,10 +212,10 @@ class TimeRange:
     def validate(self) -> Self:
         """Validate the TimeRange bounds.
 
-        :returns self:
-        :raises:
-            - `TimeRangeOutOfBoundsError`
-            - `TimeRangeMismatchError`
+        Raises
+        ------
+        TimeRangeUndefinedError
+        TimeRangeMismatchError
         """
         if not (hasattr(self, "_min_time") or hasattr(self, "_max_time")):
             raise TimeRangeUndefinedError

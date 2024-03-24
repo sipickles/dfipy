@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, TypeAlias, cast
+from typing import TypeAlias, cast
 
 from typing_extensions import Self
 
@@ -23,19 +23,16 @@ INT32_MIN = -2_147_483_648
 INT32_MAX = 2_147_483_647
 NUM_IPV4_BYTES = 4
 
+FieldValue: TypeAlias = str | int | list[int | str] | None
 
 _logger = logging.getLogger(__name__)
-
-# TODO: Deprecated
-FilterFields: TypeAlias = dict[str, dict[str, Any]]
-"""Alias for `dict[str, dict[str, any]]`"""
 
 
 class FilterOperator(str, Enum):
     """Enumerates the valid operations on FilterFields."""
 
     LT = "lt"
-    GT = "gt"
+    LG = "gt"
     GTE = "gte"
     LTE = "lte"
     EQ = "eq"
@@ -66,7 +63,7 @@ class FilterField:
 
     _name: str
     _field_type: FieldType
-    _value: str | int | list[int | str] | None
+    _value: FieldValue
     _operation: FilterOperator
     _nullable: bool = False
 
@@ -82,22 +79,31 @@ class FilterField:
         self,
         name: str,
         field_type: FieldType,
-        value: str | int | list[int] | None,
+        value: FieldValue,
         operation: FilterOperator,
         nullable: bool = False,
         schema: dict | None = None,
     ) -> None:
         """Create a FilterField.
 
-        :param name: Name of the field.  This should match a name in the dataset schema.
-        :param field_type: Type of the FilterField.
-        :param value: The value to use as a comparison.
-        :param operation: How to filter on the field. Default `False`
-        :param nullable: If `True` the field can have null values, if `False` will error on null values.
-        :param schema: Dataset schema, if present, will validate the Filter Field against the schema.
+        Parameters
+        ----------
+        name:
+            Name of the field.  This should match a name in the dataset schema.
+        field_type:
+            Type of the FilterField.
+        value:
+            The value to use as a comparison.
+        operation:
+            How to filter on the field. Default `False`
+        nullable:
+            If `True` the field can have null values, if `False` will error on null values.
+        schema:
+            Dataset schema, if present, will validate the Filter Field against the schema.
             Field validation does not cover all cases.  Some problems can only be caught by the DFI API.
-        :return: `FilterField`
-        :example:
+
+        Examples
+        --------
         ### FilterField
         ```python
         FilterField("vegetables", "enum")
@@ -125,7 +131,7 @@ class FilterField:
         return self._field_type
 
     @property
-    def value(self) -> str | int | list[int] | None:
+    def value(self) -> FieldValue:
         """The value property."""
         return self._value
 
@@ -142,12 +148,20 @@ class FilterField:
     def validate(self, schema: dict | None) -> Self:
         """Validate the Filter Field.
 
-        :param schema: Dataset schema, if present, will validate the Filter Field against the schema.
-        :returns self:
-        :raises:
-            - `FilterFieldNameNotInSchema`
-            - `FilterFieldValueError`
-            - `FilterFieldOperationValueError`
+        Parameters
+        ----------
+        schema:
+            Dataset schema, if present, will validate the Filter Field against the schema.
+
+        Returns
+        -------
+        Self
+
+        Raises
+        ------
+        FilterFieldNameNotInSchema
+        FilterFieldValueError
+        FilterFieldOperationValueError
         """
         match self._field_type:
             case FieldType():
@@ -164,13 +178,11 @@ class FilterField:
         self._filter_field_operation_is_valid(self._field_type, self._operation)
 
         if schema:
+            _logger.info("No schema provided skipping validation on field name and nullability.")
             self._validate_filter_field_name_in_schema(self._name, schema)
             self._validate_filter_field_type_matches_schema(self._name, self._field_type, schema)
             self._validate_filter_field_nullability(self._name, self._nullable, schema)
             self._filter_field_value_is_valid(self._name, self._value, schema)
-        else:
-            _logger.warn("No schema provided skipping validation on field name and nullability.")
-            
         return self
 
     def build(self) -> dict:
@@ -185,9 +197,16 @@ class FilterField:
     def _validate_filter_field_name_in_schema(name: str, schema: dict) -> None:
         """Check if the name is a field registered in the dataset schema.
 
-        :param name: Name of the Filter Field.
-        :param schema: Dataset schema to validate name against.
-        :raises: `FilterFieldNameNotInSchema`
+        Parameters
+        ----------
+        name:
+            Name of the Filter Field.
+        schema:
+            Dataset schema to validate name against.
+
+        Raises
+        ------
+        FilterFieldNameNotInSchema
         """
         if name not in schema:
             raise FilterFieldNameNotInSchema(f"'{name}' is not a field registered to the dataset schema.")
@@ -196,9 +215,16 @@ class FilterField:
     def _validate_filter_field_type_matches_schema(name: str, field_type: FieldType, schema: dict) -> None:
         """Check if the filter field type matches type in the schema.
 
-        :param name: Name of the Filter Field.
-        :param schema: Dataset schema to validate name against.
-        :raises: `FilterFieldTypeError`
+        Parameters
+        ----------
+        name:
+            Name of the Filter Field.
+        schema:
+            Dataset schema to validate name against.
+
+        Raises
+        ------
+        FilterFieldTypeError
         """
         field = schema[name]
         match field.get("type"), field_type.value:
@@ -246,16 +272,23 @@ class FilterField:
                 f"'{value}' is not a valid enum value registered in the dataset to filter with for the '{field_name}' 'enum' Filter Field."
             )
 
-    def _filter_field_value_is_valid(self, name: str, value: str | int | list[int], schema: dict) -> None:
+    def _filter_field_value_is_valid(self, name: str, value: FieldValue, schema: dict) -> None:
         """Check if the filter value is valid for the field type.
 
-        :param name: Name of the Filter Field.
-        :param value: Value to filter the field on.
-        :param schema: Dataset schema to validate name against.
-        :raises:
-            - `FilterFieldValueError`
-            - `ValueError`
-            - `TypeError`
+        Parameters
+        ----------
+        name:
+            Name of the Filter Field.
+        value:
+            Value to filter the field on.
+        schema:
+            Dataset schema to validate name against.
+
+        Raises
+        ------
+        FilterFieldValueError
+        ValueError
+        TypeError
         """
         field = schema[name]
         match field["type"]:
@@ -266,7 +299,11 @@ class FilterField:
                             self._validate_unsigned_number(value)
                         case list():
                             for number in value:
-                                self._validate_unsigned_number(number)
+                                match number:
+                                    case int():
+                                        self._validate_unsigned_number(number)
+                                    case _:
+                                        raise ValueError(f"{value} is not a valid UINT32 number.")
                         case _:
                             raise ValueError(f"{value} is not a valid UINT32 number.")
                 else:  # field["signed"] is True:
@@ -275,7 +312,11 @@ class FilterField:
                             self._validate_signed_number(value)
                         case list():
                             for number in value:
-                                self._validate_signed_number(number)
+                                match number:
+                                    case int():
+                                        self._validate_signed_number(number)
+                                    case _:
+                                        raise ValueError(f"{value} is not a valid UINT32 number.")
                         case _:
                             raise ValueError(f"{value} is not a valid INT32 number.")
             case "ip":
@@ -304,9 +345,16 @@ class FilterField:
     def _filter_field_operation_is_valid(field_type: FieldType, operation: FilterOperator) -> None:
         """Check if the filter value is valid for the field type.
 
-        :param operation: How to filter on the field.
-        :param schema: Dataset schema to validate name against.
-        :raises: `FilterFieldOperationValueError`
+        Parameters
+        ----------
+        operation:
+            How to filter on the field.
+        schema:
+            Dataset schema to validate name against.
+
+        Raises
+        ------
+        FilterFieldOperationValueError
         """
         match field_type:
             case FieldType.UNSIGNED_NUMBER | FieldType.SIGNED_NUMBER:
@@ -329,10 +377,18 @@ class FilterField:
     def _validate_filter_field_nullability(name: str, nullable: bool, schema: dict) -> None:
         """Check if the FilterField nullability matches the schema.
 
-        :param name: Name of the Filter Field.
-        :param nullable: Nullability of the field.
-        :param schema: Dataset schema to validate name against.
-        :raises: `FilterFieldInvalidNullability`
+        Parameters
+        ----------
+        name:
+            Name of the Filter Field.
+        nullable:
+            Nullability of the field.
+        schema:
+            Dataset schema to validate name against.
+
+        Raises
+        ------
+        FilterFieldInvalidNullability
         """
         null_setting = schema[name].get("nullable")
         match (nullable, null_setting):

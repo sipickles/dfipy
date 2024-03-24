@@ -1,10 +1,13 @@
-"""Integration tests for the User module
+"""Integration tests for the User module.
+
 Since these tests have side effects on the User Management API service and some rely on the state
 of the service, the order in which the tests are run matters.  We use pytest-order to specify 
 the order in qhich tests are run.  
 
 These tests don't test for correctness of the API, only for correctness of the python wrapper.
 """
+
+import logging
 import os
 
 import pytest
@@ -13,6 +16,8 @@ from dfi import Client
 
 TOKEN = os.environ["API_TOKEN"]
 URL = os.environ["DFI_USERS_API_URL"]
+
+_logger = logging.getLogger(__name__)
 
 
 @pytest.mark.order(1)
@@ -119,7 +124,7 @@ def test_get_user_id() -> None:
 
 @pytest.mark.order(10)
 @pytest.mark.dependency(depends=["test_get_user"])
-def test_delete_user(test_identity_id) -> None:
+def test_delete_user(test_identity_id: str) -> None:
     dfi = Client(TOKEN, URL)
 
     user_id = dfi.identities.get_user_id(test_identity_id)
@@ -130,7 +135,7 @@ def test_delete_user(test_identity_id) -> None:
 # which makes finding the id to then delete the user impossible.
 @pytest.mark.order(11)
 @pytest.mark.dependency(depends=["test_get_user"])
-def test_delete_identity(test_identity_id):
+def test_delete_identity(test_identity_id: str) -> None:
     dfi = Client(TOKEN, URL)
 
-    dfi.identities._delete_identity(test_identity_id)  # pylint: disable=protected-access
+    dfi.identities._delete_identity(test_identity_id)

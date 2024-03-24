@@ -1,5 +1,4 @@
-"""Class to connect to the DFI server.
-"""
+"""Class to connect to the DFI server."""
 
 import logging
 
@@ -13,15 +12,18 @@ _logger = logging.getLogger(__name__)
 class Connect:
     """Class instantiating the connectors to the DFI API.
 
-    :param api_token: token provided by generalsystem.com to access the running DFI environments.
-    :param base_url: Base url where the service is located
-    :param query_timeout: Time after an unresponsive query will be dropped.
-    :param progress_bar: Visualise a progress bar if True (slows down the execution, typically used for demos and tests).
+    Parameters
+    ----------
+    api_token: token provided by generalsystem.com to access the running DFI environments.
+    base_url: Base url where the service is located
+    query_timeout: Time after an unresponsive query will be dropped.
+    progress_bar: Visualise a progress bar if True (slows down the execution, typically used for demos and tests).
 
-    :example:
-    ````python
+    Examples
+    --------
+    ```python
     connection = dfi.Connect("<token>", "<base_url>")
-    ````
+    ```
     """
 
     def __init__(
@@ -45,24 +47,42 @@ class Connect:
         }
         self.progress_bar = progress_bar
 
-    # The representation will expose the secret token
     def __repr__(self) -> str:
+        """Class representation."""
         return f"{self.__class__.__name__}(api_token=<***>, base_url={self.base_url}, query_timeout={self.query_timeout}, progress_bar={self.progress_bar})"
 
     def __str__(self) -> str:
+        """Class string formatting."""
         return f"{self.__class__.__name__}(api_token=<***>, base_url={self.base_url}, query_timeout={self.query_timeout}, progress_bar={self.progress_bar})"
 
-    # get and post API wrappers
     def api_get(
         self,
         endpoint: str,
         stream: bool = True,
-        params: dict | None = None,
+        params: dict | None = None,  # type: ignore
     ) -> requests.models.Response:
-        """Helper wrapping requests.get method"""
+        """Wrap requests.get method.
+
+        Parameters
+        ----------
+        endpoint:
+            The endpoint of the URL.  Will be added as a suffix to the base_url.
+        stream:
+            Whether to use streaming headers or synchronous headers.
+        params:
+            Dictionary, list of tuples or bytes to send in the query string for the request.
+        """
         headers = self.streaming_headers if stream else self.synchronous_headers
         url = f"{self.base_url}/{endpoint}"
-        _logger.debug(dict(url=url, headers=headers, stream=stream, params=params, timeout=self.query_timeout))
+        _logger.debug(
+            dict(
+                url=url,
+                headers=headers,
+                stream=stream,
+                params=params,
+                timeout=self.query_timeout,
+            )
+        )
         response = requests.get(
             url,
             headers=headers,
@@ -78,38 +98,63 @@ class Connect:
         self,
         endpoint: str,
         stream: bool = True,
-        params: dict | None = None,
-        payload: dict | list | None = None,
+        params: dict | None = None,  # type: ignore
+        json: dict | list | None = None,  # type: ignore
+        data: dict | None = None,  # type: ignore
     ) -> requests.models.Response:
-        """Helper wrapping requests.post method"""
+        """Wrap requests.post method.
+
+        Parameters
+        ----------
+        endpoint:
+            The endpoint of the URL.  Will be added as a suffix to the base_url.
+        stream:
+            Whether to use streaming headers or synchronous headers.
+        params:
+            Dictionary, list of tuples or bytes to send in the query string for the request.
+        data:
+            Dictionary, list of tuples, bytes, or file-like object to send in the body of the request
+        json:
+            A JSON serializable Python object to send in the body of the request.  Will set the
+            "Content-Type: application/json" in the header.
+        """
         headers = self.streaming_headers if stream else self.synchronous_headers
         url = f"{self.base_url}/{endpoint}"
 
         response = requests.post(
             url,
             headers=headers,
-            json=payload,
+            json=json,
+            data=data,
             stream=stream,
             params=params,
             timeout=self.query_timeout,
         )
-        validate.response(response, url, headers, params, payload)
+        validate.response(response, url, headers, params, json)
         return response
 
     def api_put(
         self,
         endpoint: str,
         stream: bool = True,
-        params: dict | None = None,
-        json: dict | None = None,
-        data: dict | None = None,
+        params: dict | None = None,  # type: ignore
+        json: dict | None = None,  # type: ignore
+        data: dict | None = None,  # type: ignore
     ) -> requests.models.Response:
-        """Helper wrapping requests.put method
-        :endpoint: The endpoint of the URL.  Will be added as a suffix to the base_url.
-        :stream: Whether to use streaming headers or synchronous headers.
-        :params: Dictionary, list of tuples or bytes to send in the query string for the request.
-        :data: Dictionary, list of tuples, bytes, or file-like object to send in the body of the request
-        :json: A JSON serializable Python object to send in the body of the request.  Will set the
+        """Wrap requests.put method.
+
+        Parameters
+        ----------
+        endpoint:
+            The endpoint of the URL.  Will be added as a suffix to the base_url.
+        stream:
+            Whether to use streaming headers or synchronous headers.
+        params:
+            Dictionary, list of tuples or bytes to send in the query string for the request.
+        data:
+            Dictionary, list of tuples, bytes, or file-like object to send in the body of the request
+        json:
+            A JSON serializable Python object to send in the body of the request.  Will set the
             "Content-Type: application/json" in the header.
         """
         headers = self.streaming_headers if stream else self.synchronous_headers
@@ -131,42 +176,76 @@ class Connect:
         self,
         endpoint: str,
         stream: bool = True,
-        params: dict | None = None,
-        payload: dict | None = None,
+        params: dict | None = None,  # type: ignore
+        json: dict | list | None = None,  # type: ignore
+        data: dict | None = None,  # type: ignore
     ) -> requests.models.Response:
-        """Helper wrapping requests.delete method"""
+        """Wrap requests.delete method.
+
+        Parameters
+        ----------
+        endpoint:
+            The endpoint of the URL.  Will be added as a suffix to the base_url.
+        stream:
+            Whether to use streaming headers or synchronous headers.
+        params:
+            Dictionary, list of tuples or bytes to send in the query string for the request.
+        data:
+            Dictionary, list of tuples, bytes, or file-like object to send in the body of the request
+        json:
+            A JSON serializable Python object to send in the body of the request.  Will set the
+            "Content-Type: application/json" in the header.
+        """
         headers = self.streaming_headers if stream else self.synchronous_headers
 
         url = f"{self.base_url}/{endpoint}"
         response = requests.delete(
             url,
             headers=headers,
-            json=payload,
+            json=json,
+            data=data,
             stream=stream,
             params=params,
             timeout=self.query_timeout,
         )
-        validate.response(response, url, headers, params)
+        validate.response(response, url, headers, params, json)
         return response
 
     def api_patch(
         self,
         endpoint: str,
         stream: bool = True,
-        params: dict | None = None,
-        payload: dict | None = None,
+        params: dict | None = None,  # type: ignore
+        json: dict | None = None,  # type: ignore
+        data: dict | None = None,  # type: ignore
     ) -> requests.models.Response:
-        """Helper wrapping requests.patch method"""
+        """Wrap requests.patch method.
+
+        Parameters
+        ----------
+        endpoint:
+            The endpoint of the URL.  Will be added as a suffix to the base_url.
+        stream:
+            Whether to use streaming headers or synchronous headers.
+        params:
+            Dictionary, list of tuples or bytes to send in the query string for the request.
+        data:
+            Dictionary, list of tuples, bytes, or file-like object to send in the body of the request
+        json:
+            A JSON serializable Python object to send in the body of the request.  Will set the
+            "Content-Type: application/json" in the header.
+        """
         headers = self.streaming_headers if stream else self.synchronous_headers
         url = f"{self.base_url}/{endpoint}"
 
         response = requests.patch(
             url,
             headers=headers,
-            json=payload,
+            json=json,
+            data=data,
             stream=stream,
             params=params,
             timeout=self.query_timeout,
         )
-        validate.response(response, url, headers, params, payload)
+        validate.response(response, url, headers, params, json)
         return response

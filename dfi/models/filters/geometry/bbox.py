@@ -49,12 +49,23 @@ class BBox:
     def from_corners(self, min_lon: float, min_lat: float, max_lon: float, max_lat: float) -> Self:
         """Create a BBox from specified longitude & latitude values.
 
-        :param min_lon: Minimum bound of the longitude.
-        :param min_lat: Minimum bound of the latitude.
-        :param max_lon: Maximum bound of the longitude.
-        :param max_lat: Maximum bound of the latitude.
-        :return: `BBox`
-        :example:
+        Parameters
+        ----------
+        min_lon:
+            Minimum bound of the longitude.
+        min_lat:
+            Minimum bound of the latitude.
+        max_lon:
+            Maximum bound of the longitude.
+        max_lat:
+            Maximum bound of the latitude.
+
+        Returns
+        -------
+        BBox
+
+        Examples
+        --------
         ### BBox From Corners
         ```python
         min_lon = 0.0
@@ -78,14 +89,24 @@ class BBox:
     def from_list(self, bounds: list[float]) -> Self:
         """Create a BBox from a GeoJSON BBox.
 
-        :param bounds: a list of 4 floats representing [min_lon, min_lat, max_lon, max_lat].
-        :return: `BBox`
-        :raises:
-            - `BBoxValueError`
-            - `BBoxLongitudeMismatchError`
-            - `BBoxLatitudeMismatchError`
-            - `TypeError`
-        :example:
+        Parameters
+        ----------
+        bounds:
+            a list of 4 floats representing [min_lon, min_lat, max_lon, max_lat].
+
+        Returns
+        -------
+        BBox
+
+        Raises
+        ------
+        BBoxValueError
+        BBoxLongitudeMismatchError
+        BBoxLatitudeMismatchError
+        TypeError
+
+        Examples
+        --------
         ### BBox From List
         ```python
         BBox().from_list([0.0, 0.0, 1.0, 1.0])
@@ -110,10 +131,14 @@ class BBox:
     def validate(self) -> Self:
         """Validate the BBox.
 
-        :returns self:
-        :raises:
-            - `BBoxLongitudeMismatchError`
-            - `BBoxLatitudeMismatchError`
+        Returns
+        -------
+        BBox
+
+        Raises
+        ------
+        BBoxLongitudeMismatchError
+        BBoxLatitudeMismatchError
         """
         if not (
             hasattr(self, "_min_lon")

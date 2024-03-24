@@ -48,7 +48,7 @@ from dfi.models.filters.geometry import BBox, Point, Polygon
 def test_unique_id_counts_error_conditions(
     dfi: Client,
     dataset_id: str,
-    uids: list[str] | None,
+    uids: list[str | int] | None,
     geometry: Polygon | BBox | None,
     time_range: TimeRange | None,
     filter_fields: list[FilterField] | None,
@@ -56,7 +56,11 @@ def test_unique_id_counts_error_conditions(
 ) -> None:
     with expectation:
         _ = dfi.query.unique_id_counts(
-            dataset_id, uids=uids, geometry=geometry, time_range=time_range, filter_fields=filter_fields  # type: ignore[arg-type]
+            dataset_id,
+            uids=uids,
+            geometry=geometry,
+            time_range=time_range,
+            filter_fields=filter_fields,  # type: ignore[arg-type]
         )
 
 
@@ -154,13 +158,17 @@ def test_unique_id_counts_error_conditions(
 def test_query_unique_id_counts(
     dfi: Client,
     dataset_id: str,
-    uids: list[str] | None,
+    uids: list[str | int] | None,
     geometry: Polygon | BBox | None,
     time_range: TimeRange | None,
     filter_fields: list[FilterField] | None,
 ) -> None:
     counts = dfi.query.unique_id_counts(
-        dataset_id, uids=uids, geometry=geometry, time_range=time_range, filter_fields=filter_fields  # type: ignore[arg-type]
+        dataset_id,
+        uids=uids,
+        geometry=geometry,
+        time_range=time_range,
+        filter_fields=filter_fields,  # type: ignore[arg-type]
     )
     assert isinstance(counts, dict)
 

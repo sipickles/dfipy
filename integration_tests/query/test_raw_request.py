@@ -68,13 +68,17 @@ def test_raw_request_result_type(
     ],
 )
 def test_raw_request_records_include_fields(
-    dfi: Client, dataset_id: str, document: dict, expected_type: type, include: list[str]  # type: ignore[type-arg]
+    dfi: Client,
+    dataset_id: str,
+    document: dict,
+    expected_type: type,
+    include: list[str],  # type: ignore[type-arg]
 ) -> None:
     """Test raw_request works as intended."""
     document["datasetId"] = dataset_id
     result: pd.DataFrame = dfi.query.raw_request(document)
     assert isinstance(result, expected_type)
-    assert set(include).issubset(set(result.columns))
+    assert set(include).issubset(set(result.columns))  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize(

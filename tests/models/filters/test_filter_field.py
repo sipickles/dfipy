@@ -13,6 +13,7 @@ from dfi.errors import (
     FilterFieldValueError,
 )
 from dfi.models.filters import FieldType, FilterField, FilterOperator
+from dfi.models.filters.filter_fields import FieldValue
 
 _logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ INT32_MAX = 2_147_483_647
 def test_filter_field_argument_type_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,
     expectation: RaisesContext[ValueError],
@@ -58,7 +59,7 @@ def test_filter_field_argument_type_error_conditions(
 def test_filter_field_name_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expectation: RaisesContext[FilterFieldNameNotInSchema],
@@ -103,7 +104,7 @@ def test_filter_field_name_error_conditions(
 def test_filter_field_nullable_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     nullable: bool,
     schema: dict | None,  # type: ignore[type-arg]
@@ -154,7 +155,7 @@ def test_filter_field_nullable_error_conditions(
 def test_filter_field_type_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expectation: RaisesContext[FilterFieldOperationValueError],
@@ -252,7 +253,7 @@ def test_filter_field_type_error_conditions(
 def test_filter_field_enum_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expectation: RaisesContext[FilterFieldOperationValueError | FilterFieldValueError],
@@ -383,7 +384,7 @@ def test_filter_field_enum_error_conditions(
 def test_filter_field_ip_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     nullable: bool,
     schema: dict | None,  # type: ignore[type-arg]
@@ -480,7 +481,7 @@ def test_filter_field_ip_error_conditions(
 def test_filter_field_unsigned_number_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expectation: RaisesContext[FilterFieldOperationValueError],
@@ -576,7 +577,7 @@ def test_filter_field_unsigned_number_error_conditions(
 def test_filter_field_signed_number_error_conditions(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expectation: RaisesContext[FilterFieldOperationValueError],
@@ -629,7 +630,7 @@ def test_filter_field_signed_number_error_conditions(
 def test_filter_field(
     name: str,
     field_type: FieldType,
-    value: str | int | list[int],
+    value: FieldValue,
     operation: FilterOperator,
     schema: dict | None,  # type: ignore[type-arg]
     expected: dict,  # type: ignore[type-arg]

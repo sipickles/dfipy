@@ -1,5 +1,27 @@
 # Changelog
 
+## [9.0.0] - 2024-03-22
+
+### Added
+
+- [DFIS-1147] Enforce typing information on CI/CD build.
+- [DFIS-1744] Add endpoint information to each method.
+- [DFIS-1583] Adds Google Analytics property.
+- [DFIS-1639] Add Prodpad feedback button.
+- [DFIS-1750] Adds Query V1 /v1/query/manage as dfi.query.manage(...).
+
+### Changed
+
+- [DFIS-1746] Rename records_count() -> count().
+- [DFIS-1590] Generate API Reference with Material for MkDocs.
+- [DFIS-1745] Switch linter / formatter to Ruff.
+
+### Removed
+
+- [DFIS-1588] Remove User Guide from dfipy docs.
+- [DFIS-1743] Remove Query V0 from dfipy.
+- [DFIS-1750] Nukes last remnants of Query V0 from dfipy (truncate endpoint) 💥💣💥.
+
 ## [8.0.0] - 2024-02-24
 
 ### Changed

@@ -1,9 +1,9 @@
-<img src="docs/source/_static/gs_logo.png" align="right">
+<img src="docs/assets/general-system-dark.svg" align="right">
 
-[![Python versions](https://img.shields.io/pypi/pyversions/dfipy.svg)](https://pypi.python.org/pypi/dfipy/)
-[![PyPI version](https://badge.fury.io/py/dfipy.svg)](https://badge.fury.io/py/dfipy)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://timothycrosley.github.io/isort/)
+[![PyPI - Version](https://img.shields.io/pypi/v/dfipy)](https://pypi.python.org/pypi/dfipy/)
+[![image](https://img.shields.io/pypi/v/dfipy.svg)](https://pypi.python.org/pypi/dfipy)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![MyPy](https://img.shields.io/badge/%20type_checker-mypy-%231674b1?style=flat)](https://github.com/python/mypy)
 
 # DFI API wrapper
 

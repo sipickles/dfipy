@@ -1,4 +1,4 @@
-"""Integration tests for record_counts on Query V1 API.
+"""Integration tests for count on Query V1 API.
 
 Since these tests have side effects on the Import API service and some rely on the state
 of the service, the order in which the tests are run matters.  We use pytest-order to specify

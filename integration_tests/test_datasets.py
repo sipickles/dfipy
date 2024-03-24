@@ -1,18 +1,22 @@
-"""Integration tests for the Datasets module
+"""Integration tests for the Datasets module.
+
 Since these tests have side effects on the Datasets API service and some rely on the state
 of the service, the order in which the tests are run matters.  We use pytest-order to specify 
 the order in qhich tests are run.  
 """
+
 import json
 import logging
 import os
+from collections.abc import Generator
+from typing import Any
 
 import pyarrow as pa
 import pytest
-from integration_tests.conftest import ValueStore
 
 from dfi import Client
 from dfi.validate import DFIResponseError
+from integration_tests.conftest import ValueStore
 
 TOKEN = os.environ["API_TOKEN"]
 DATASETS_API_URL = os.environ["DFI_DATASETS_API_URL"]
@@ -33,8 +37,9 @@ def get_dataset_name(value_store: ValueStore) -> str:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup_teardown(dataset_id: str):
+def setup_teardown() -> Generator[Any, Any, Any]:
     """Fixture to setup and teardown the dfi for the tests in this module.
+
     Setup:
         - truncate dfi
         - check dfi is empty
@@ -48,7 +53,7 @@ def setup_teardown(dataset_id: str):
     dfi_datasets = Client(TOKEN, DATASETS_API_URL)
 
     # Delete existing dataset
-    with open(DATASET_FILE, "r", encoding="utf-8") as fp:
+    with open(DATASET_FILE, encoding="utf-8") as fp:
         dataset = json.load(fp)
         dataset_name = dataset["name"]
 
@@ -67,11 +72,13 @@ def setup_teardown(dataset_id: str):
     # TEARDOWN
     _logger.info("TEARDOWN")
 
-    # Delete Dataset
+    # Delete the dataset (useful if tests failed without proper teardown)
     try:
-        dfi_datasets.datasets.delete(dataset_id)
+        existing_dataset = dfi_datasets.datasets.find(name=dataset_name, limit=1)
+        if len(existing_dataset) > 0:
+            dfi_datasets.datasets.delete(existing_dataset[0]["id"])
     except DFIResponseError:
-        # will error if trying to delete an non-existant dataset
+        # will error if no dataset found
         pass
 
     _logger.info("COMPLETE")
@@ -79,7 +86,7 @@ def setup_teardown(dataset_id: str):
 
 @pytest.mark.order(1)
 def test_create_dataset(value_store: ValueStore) -> None:
-    with open(DATASET_FILE, "r", encoding="utf-8") as fp:
+    with open(DATASET_FILE, encoding="utf-8") as fp:
         dataset = json.load(fp)
 
     dfi = Client(TOKEN, DATASETS_API_URL)
@@ -117,7 +124,7 @@ def test_find_by_id(value_store: ValueStore) -> None:
 
 @pytest.mark.order(4)
 def test_update(value_store: ValueStore) -> None:
-    with open(DATASET_FILE, "r", encoding="utf-8") as fp:
+    with open(DATASET_FILE, encoding="utf-8") as fp:
         dataset = json.load(fp)
 
     dfi = Client(TOKEN, DATASETS_API_URL)
@@ -159,7 +166,9 @@ def test_add_permissions(value_store: ValueStore) -> None:
     dataset_id = value_store.dataset_id
 
     permissions = [{"type": "writer", "scope": "identity", "identityId": "123"}]
-    updated_permissions = dfi.datasets.add_permissions(dataset_id=dataset_id, permissions=permissions)
+    updated_permissions = dfi.datasets.add_permissions(
+        dataset_id=dataset_id, permissions=permissions
+    )
 
     for permission in permissions:
         assert permission in updated_permissions
@@ -171,7 +180,9 @@ def test_delete_permissions(value_store: ValueStore) -> None:
     dataset_id = value_store.dataset_id
 
     permissions = [{"type": "reader", "scope": "all"}]
-    deleted_permissions = dfi.datasets.delete_permissions(dataset_id=dataset_id, permissions=permissions)
+    deleted_permissions = dfi.datasets.delete_permissions(
+        dataset_id=dataset_id, permissions=permissions
+    )
 
     assert permissions == deleted_permissions
 
@@ -220,7 +231,9 @@ def test_add_enums(value_store: ValueStore) -> None:
             "nullable": True,
         },
     }
-    schema = dfi.datasets.add_enums(dataset_id=dataset_id, metadata_enums=metadata_enums)
+    schema = dfi.datasets.add_enums(
+        dataset_id=dataset_id, metadata_enums=metadata_enums
+    )
 
     assert isinstance(schema, dict)
 

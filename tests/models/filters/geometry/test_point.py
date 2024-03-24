@@ -1,5 +1,4 @@
-"""Unit tests for Point
-"""
+"""Unit tests for Point."""
 
 from contextlib import nullcontext as does_not_raise
 

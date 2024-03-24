@@ -1,26 +1,13 @@
 """Enumerated errors for possible DFI errors that may arise.
 
-:::{note}
-Errors and Warning prefixed with `DFI` (e.g. `DFI<name>Error`) indicates an error 
-originating from within the GS Platform API.
-:::
+??? note
+    Errors and Warnings prefixed with `DFI` (e.g. `DFI<name>Error`) indicates it 
+    originates from within the GS Platform API.
 """
 
 
-class DFIInputValueError(Exception):
-    """Raised when the user passes a wrong input value to the DFI query."""
-
-
-class DFIInputValueOutOfBoundError(Exception):
-    """Raised when the user passes a wrong input value to the DFI query."""
-
-
 class DFIResponseError(Exception):
-    """Raised when an error propagated back from the HTTP API."""
-
-
-class DFIResponseWarning(Warning):
-    """Raised when some exceptional case is propagated back from the HTTP API."""
+    """Raised when an error propagated back from the DFI API."""
 
 
 class UnreachableError(Exception):
@@ -48,15 +35,15 @@ class LatitudeOutOfBoundsError(Exception):
 
 
 class AltitudeOutOfBoundsError(Exception):
-    """Raised when an altitude value is not within (-1.7976931348623157e308< altitude < 1.7976931348623157e308)."""
+    """Raised when an altitude value is not within (`-1.7976931348623157e308 < altitude < 1.7976931348623157e308`)."""
 
 
 class BBoxLongitudeMismatchError(Exception):
-    """Raised when min_lon >= max_lon."""
+    """Raised when `min_lon >= max_lon`."""
 
 
 class BBoxLatitudeMismatchError(Exception):
-    """Raised when min_lat >= max_lat."""
+    """Raised when `min_lat >= max_lat`."""
 
 
 class BBoxValueError(Exception):
@@ -70,13 +57,13 @@ class BBoxUndefinedError(Exception):
 class TimeRangeOutOfBoundsError(Exception):
     """Raised when a TimeRange value is not within.
 
-    - datetime form:          (1970-01-01 00:00:00 UTC <= datetime <= 2038-01-19 03:14:08 UTC)
-    - unix epoch millis form: (0 <=datetime <= 2,147,483,647)
+    - datetime form:          (`1970-01-01 00:00:00+00:00 <= datetime <= 2038-01-19 03:14:08+00:00`)
+    - unix epoch millis form: (`0 <= datetime <= 2,147,483,647`)
     """
 
 
 class TimeRangeMismatchError(Exception):
-    """Raised when min_time > max_time."""
+    """Raised when `min_time > max_time`."""
 
 
 class TimeRangeUndefinedError(Exception):
@@ -107,15 +94,15 @@ class FilterFieldInvalidNullability(Exception):
     """Raised when a Filter Field nullability does not match the schema definition."""
 
 
-class UnkownMessageReceivedError(Warning):
+class UnkownMessageReceivedError(Exception):
     """Raised when an unknown Server Side Event message is received."""
 
 
-class NoFinishMessageReceivedError(Warning):
+class NoFinishMessageReceivedError(Exception):
     """Raised when a stream ends without receving a 'finish' event."""
 
 
-class EventsMissedError(Warning):
+class EventsMissedError(Exception):
     """Raised when a fewer events are received than were sent."""
 
 

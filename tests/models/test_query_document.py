@@ -6,7 +6,12 @@ from datetime import datetime
 import pytest
 from _pytest.python_api import RaisesContext
 
-from dfi.errors import BBoxUndefinedError, InvalidQueryDocument, PolygonUndefinedError, TimeRangeUndefinedError
+from dfi.errors import (
+    BBoxUndefinedError,
+    InvalidQueryDocument,
+    PolygonUndefinedError,
+    TimeRangeUndefinedError,
+)
 from dfi.models import QueryDocument
 from dfi.models.filters import FieldType, FilterField, FilterOperator, Only, TimeRange
 from dfi.models.filters.geometry import BBox, Point, Polygon, RawCoords
@@ -92,8 +97,18 @@ def test_set_return_model_error_conditions(
     "dataset_id,return_model,only,expectation",
     [
         ("test-dataset", Count(), "newest", pytest.raises(InvalidQueryDocument)),
-        ("test-dataset", Count(groupby=GroupBy("uniqueId")), Only("newest"), pytest.raises(InvalidQueryDocument)),
-        ("test-dataset", Count(groupby=GroupBy("uniqueId")), Only("oldest"), pytest.raises(InvalidQueryDocument)),
+        (
+            "test-dataset",
+            Count(groupby=GroupBy("uniqueId")),
+            Only("newest"),
+            pytest.raises(InvalidQueryDocument),
+        ),
+        (
+            "test-dataset",
+            Count(groupby=GroupBy("uniqueId")),
+            Only("oldest"),
+            pytest.raises(InvalidQueryDocument),
+        ),
     ],
 )
 def test_set_only_error_conditions(
@@ -141,7 +156,12 @@ def test_set_uids_error_conditions(
 @pytest.mark.parametrize(
     "dataset_id,return_model,time_range,expectation",
     [
-        ("test-dataset", Count(), datetime(2020, 1, 1, 0, 0, 0), pytest.raises(ValueError)),
+        (
+            "test-dataset",
+            Count(),
+            datetime(2020, 1, 1, 0, 0, 0),
+            pytest.raises(ValueError),
+        ),
         (
             "test-dataset",
             Count(),
@@ -149,7 +169,12 @@ def test_set_uids_error_conditions(
             pytest.raises(ValueError),
         ),
         ("test-dataset", Count(), "2020-01-01T00:00:00", pytest.raises(ValueError)),
-        ("test-dataset", Count(), ("2020-01-01T00:00:00", "2020-01-02T00:00:00"), pytest.raises(ValueError)),
+        (
+            "test-dataset",
+            Count(),
+            ("2020-01-01T00:00:00", "2020-01-02T00:00:00"),
+            pytest.raises(ValueError),
+        ),
         ("test-dataset", Count(), TimeRange(), pytest.raises(TimeRangeUndefinedError)),
     ],
 )
@@ -177,7 +202,13 @@ def test_set_time_range_error_conditions(
         (
             "test-dataset",
             Count(),
-            [Point(0.0, 0.0), Point(1.0, 0.0), Point(1.0, 1.0), Point(0.0, 1.0), Point(0.0, 0.0)],
+            [
+                Point(0.0, 0.0),
+                Point(1.0, 0.0),
+                Point(1.0, 1.0),
+                Point(0.0, 1.0),
+                Point(0.0, 0.0),
+            ],
             pytest.raises(ValueError),
         ),
         (
@@ -325,8 +356,16 @@ def test_validate_return_model_raises_errors(
     [
         (Only("newest"), Count(), pytest.raises(InvalidQueryDocument)),
         (Only("oldest"), Count(), pytest.raises(InvalidQueryDocument)),
-        (Only("newest"), Count(groupby=GroupBy("uniqueId")), pytest.raises(InvalidQueryDocument)),
-        (Only("oldest"), Count(groupby=GroupBy("uniqueId")), pytest.raises(InvalidQueryDocument)),
+        (
+            Only("newest"),
+            Count(groupby=GroupBy("uniqueId")),
+            pytest.raises(InvalidQueryDocument),
+        ),
+        (
+            Only("oldest"),
+            Count(groupby=GroupBy("uniqueId")),
+            pytest.raises(InvalidQueryDocument),
+        ),
     ],
 )
 def test_validate_only_filter_raises_errors(
@@ -350,8 +389,18 @@ def test_validate_only_filter_raises_errors(
         # invalid only x return_model combos
         ("test-dataset", Only("newest"), Count(), pytest.raises(InvalidQueryDocument)),
         ("test-dataset", Only("oldest"), Count(), pytest.raises(InvalidQueryDocument)),
-        ("test-dataset", Only("newest"), Count(groupby=GroupBy("uniqueId")), pytest.raises(InvalidQueryDocument)),
-        ("test-dataset", Only("oldest"), Count(groupby=GroupBy("uniqueId")), pytest.raises(InvalidQueryDocument)),
+        (
+            "test-dataset",
+            Only("newest"),
+            Count(groupby=GroupBy("uniqueId")),
+            pytest.raises(InvalidQueryDocument),
+        ),
+        (
+            "test-dataset",
+            Only("oldest"),
+            Count(groupby=GroupBy("uniqueId")),
+            pytest.raises(InvalidQueryDocument),
+        ),
     ],
 )
 def test_validate_raises_errors(
@@ -385,8 +434,12 @@ def test_validate_raises_errors(
             "test-dataset",
             Records(),
             ["aaa"],
-            Polygon().from_raw_coords([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)]),
-            TimeRange().from_strings("2020-01-01T00:00:00+00:00", "2020-01-01T00:00:01+00:00"),
+            Polygon().from_raw_coords(
+                [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)]
+            ),
+            TimeRange().from_strings(
+                "2020-01-01T00:00:00+00:00", "2020-01-01T00:00:01+00:00"
+            ),
             [
                 FilterField(
                     name="delta distance",
@@ -406,9 +459,18 @@ def test_validate_raises_errors(
                     "id": ["aaa"],
                     "geo": {
                         "type": "Polygon",
-                        "coordinates": ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)),
+                        "coordinates": (
+                            (0.0, 0.0),
+                            (1.0, 0.0),
+                            (1.0, 1.0),
+                            (0.0, 1.0),
+                            (0.0, 0.0),
+                        ),
                     },
-                    "time": {"maxTime": "2020-01-01T00:00:01+00:00", "minTime": "2020-01-01T00:00:00+00:00"},
+                    "time": {
+                        "maxTime": "2020-01-01T00:00:01+00:00",
+                        "minTime": "2020-01-01T00:00:00+00:00",
+                    },
                     "only": "newest",
                     "fields": {"delta distance": {"outside": [-22, 0]}},
                 },
@@ -438,8 +500,6 @@ def test_query_document(
         only=only,
     ).build()
 
-    _logger.warning(expected)
-    _logger.warning(document)
     assert expected == document
 
 
@@ -449,7 +509,9 @@ def test_validate_dataset_id(dataset_id: str) -> None:
     QueryDocument._validate_dataset_id(dataset_id)
 
 
-@pytest.mark.parametrize("return_model", [(Count()), (Count(groupby=GroupBy("uniqueId"))), (Records())])
+@pytest.mark.parametrize(
+    "return_model", [(Count()), (Count(groupby=GroupBy("uniqueId"))), (Records())]
+)
 def test_validate_return_model(return_model: Records | Count) -> None:
     """Test validate_return_model does not raise error when valid return_model given."""
     QueryDocument._validate_return_model(return_model)
@@ -474,13 +536,22 @@ def test_validate(dataset_id: str, return_model: Records | Count) -> None:
         (
             "test-dataset-2",
             Records(),
-            {"datasetId": "test-dataset-2", "filters": {}, "return": {"type": "records"}},
+            {
+                "datasetId": "test-dataset-2",
+                "filters": {},
+                "return": {"type": "records"},
+            },
         ),
     ],
 )
 def test_set_dataset_id(dataset_id: str, return_model: Records, expected: dict) -> None:
     """Test set_dataset_id builds properly."""
-    assert expected == QueryDocument("test-dataset", return_model).set_dataset_id(dataset_id).build()
+    assert (
+        expected
+        == QueryDocument("test-dataset", return_model)
+        .set_dataset_id(dataset_id)
+        .build()
+    )
 
 
 @pytest.mark.parametrize(
@@ -496,7 +567,11 @@ def test_set_dataset_id(dataset_id: str, return_model: Records, expected: dict) 
             "test-dataset",
             Count(),
             Count(groupby=GroupBy("uniqueId")),
-            {"datasetId": "test-dataset", "filters": {}, "return": {"type": "count", "groupBy": {"type": "uniqueId"}}},
+            {
+                "datasetId": "test-dataset",
+                "filters": {},
+                "return": {"type": "count", "groupBy": {"type": "uniqueId"}},
+            },
         ),
         (
             "test-dataset",
@@ -507,10 +582,18 @@ def test_set_dataset_id(dataset_id: str, return_model: Records, expected: dict) 
     ],
 )
 def test_set_return_model(
-    dataset_id: str, initial_return_model: Records | Count, return_model: Records | Count, expected: dict
+    dataset_id: str,
+    initial_return_model: Records | Count,
+    return_model: Records | Count,
+    expected: dict,
 ) -> None:
     """Test set_return_model build properly."""
-    assert expected == QueryDocument(dataset_id, initial_return_model).set_return_model(return_model).build()
+    assert (
+        expected
+        == QueryDocument(dataset_id, initial_return_model)
+        .set_return_model(return_model)
+        .build()
+    )
 
 
 @pytest.mark.parametrize(
@@ -520,25 +603,41 @@ def test_set_return_model(
             "test-dataset",
             Records(),
             Only("newest"),
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {"only": "newest"}},
+            {
+                "datasetId": "test-dataset",
+                "return": {"type": "records"},
+                "filters": {"only": "newest"},
+            },
         ),
         (
             "test-dataset",
             Records(),
             Only("oldest"),
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {"only": "oldest"}},
+            {
+                "datasetId": "test-dataset",
+                "return": {"type": "records"},
+                "filters": {"only": "oldest"},
+            },
         ),
         (
             "test-dataset",
             Records(),
             "newest",
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {"only": "newest"}},
+            {
+                "datasetId": "test-dataset",
+                "return": {"type": "records"},
+                "filters": {"only": "newest"},
+            },
         ),
         (
             "test-dataset",
             Records(),
             "oldest",
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {"only": "oldest"}},
+            {
+                "datasetId": "test-dataset",
+                "return": {"type": "records"},
+                "filters": {"only": "oldest"},
+            },
         ),
         (
             "test-dataset",
@@ -548,7 +647,9 @@ def test_set_return_model(
         ),
     ],
 )
-def test_set_only(dataset_id: str, return_model: Records, only: Only | None, expected: dict) -> None:
+def test_set_only(
+    dataset_id: str, return_model: Records, only: Only | None, expected: dict
+) -> None:
     """Test set_only builds properly."""
     assert expected == QueryDocument(dataset_id, return_model).set_only(only).build()
 
@@ -560,32 +661,10 @@ def test_set_only(dataset_id: str, return_model: Records, only: Only | None, exp
             "test-dataset",
             Records(),
             ["aaa"],
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {"id": ["aaa"]}},
-        ),
-        (
-            "test-dataset",
-            Records(),
-            None,
-            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {}},
-        ),
-    ],
-)
-def test_set_uids(dataset_id: str, return_model: Records, uids: list[str | int] | None, expected: dict) -> None:
-    """Test set_uids builds properly."""
-    assert expected == QueryDocument(dataset_id, return_model).set_uids(uids).build()
-
-
-@pytest.mark.parametrize(
-    "dataset_id,return_model,time_range,expected",
-    [
-        (
-            "test-dataset",
-            Records(),
-            TimeRange().from_strings("2020-01-01T00:00:00+00:00", "2020-01-01T00:00:01+00:00"),
             {
                 "datasetId": "test-dataset",
                 "return": {"type": "records"},
-                "filters": {"time": {"minTime": "2020-01-01T00:00:00+00:00", "maxTime": "2020-01-01T00:00:01+00:00"}},
+                "filters": {"id": ["aaa"]},
             },
         ),
         (
@@ -596,9 +675,49 @@ def test_set_uids(dataset_id: str, return_model: Records, uids: list[str | int] 
         ),
     ],
 )
-def test_set_time_range(dataset_id: str, return_model: Records, time_range: TimeRange | None, expected: dict) -> None:
+def test_set_uids(
+    dataset_id: str, return_model: Records, uids: list[str | int] | None, expected: dict
+) -> None:
+    """Test set_uids builds properly."""
+    assert expected == QueryDocument(dataset_id, return_model).set_uids(uids).build()
+
+
+@pytest.mark.parametrize(
+    "dataset_id,return_model,time_range,expected",
+    [
+        (
+            "test-dataset",
+            Records(),
+            TimeRange().from_strings(
+                "2020-01-01T00:00:00+00:00", "2020-01-01T00:00:01+00:00"
+            ),
+            {
+                "datasetId": "test-dataset",
+                "return": {"type": "records"},
+                "filters": {
+                    "time": {
+                        "minTime": "2020-01-01T00:00:00+00:00",
+                        "maxTime": "2020-01-01T00:00:01+00:00",
+                    }
+                },
+            },
+        ),
+        (
+            "test-dataset",
+            Records(),
+            None,
+            {"datasetId": "test-dataset", "return": {"type": "records"}, "filters": {}},
+        ),
+    ],
+)
+def test_set_time_range(
+    dataset_id: str, return_model: Records, time_range: TimeRange | None, expected: dict
+) -> None:
     """Test set_time_range builds properly."""
-    assert expected == QueryDocument(dataset_id, return_model).set_time_range(time_range).build()
+    assert (
+        expected
+        == QueryDocument(dataset_id, return_model).set_time_range(time_range).build()
+    )
 
 
 @pytest.mark.parametrize(
@@ -607,13 +726,21 @@ def test_set_time_range(dataset_id: str, return_model: Records, time_range: Time
         (
             "test-dataset",
             Records(),
-            Polygon().from_raw_coords([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)]),
+            Polygon().from_raw_coords(
+                [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)]
+            ),
             {
                 "datasetId": "test-dataset",
                 "filters": {
                     "geo": {
                         "type": "Polygon",
-                        "coordinates": ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)),
+                        "coordinates": (
+                            (0.0, 0.0),
+                            (1.0, 0.0),
+                            (1.0, 1.0),
+                            (0.0, 1.0),
+                            (0.0, 0.0),
+                        ),
                     }
                 },
                 "return": {"type": "records"},
@@ -625,7 +752,9 @@ def test_set_time_range(dataset_id: str, return_model: Records, time_range: Time
             BBox().from_corners(0.0, 0.0, 1.0, 1.0),
             {
                 "datasetId": "test-dataset",
-                "filters": {"geo": {"type": "BoundingBox", "bounds": (0.0, 0.0, 1.0, 1.0)}},
+                "filters": {
+                    "geo": {"type": "BoundingBox", "bounds": (0.0, 0.0, 1.0, 1.0)}
+                },
                 "return": {"type": "records"},
             },
         ),
@@ -637,9 +766,17 @@ def test_set_time_range(dataset_id: str, return_model: Records, time_range: Time
         ),
     ],
 )
-def test_set_geometry(dataset_id: str, return_model: Records, geometry: Polygon | BBox | None, expected: dict) -> None:
+def test_set_geometry(
+    dataset_id: str,
+    return_model: Records,
+    geometry: Polygon | BBox | None,
+    expected: dict,
+) -> None:
     """Test set_geometry builds properly."""
-    assert expected == QueryDocument(dataset_id, return_model).set_geometry(geometry).build()
+    assert (
+        expected
+        == QueryDocument(dataset_id, return_model).set_geometry(geometry).build()
+    )
 
 
 @pytest.mark.parametrize(
@@ -666,9 +803,16 @@ def test_set_geometry(dataset_id: str, return_model: Records, geometry: Polygon 
         ),
     ],
 )
-def test_set_filter_field(dataset_id: str, return_model: Records, filter_field: FilterField, expected: dict) -> None:
+def test_set_filter_field(
+    dataset_id: str, return_model: Records, filter_field: FilterField, expected: dict
+) -> None:
     """Test set_filter_field builds properly."""
-    assert expected == QueryDocument(dataset_id, return_model).set_filter_field(filter_field).build()
+    assert (
+        expected
+        == QueryDocument(dataset_id, return_model)
+        .set_filter_field(filter_field)
+        .build()
+    )
 
 
 @pytest.mark.parametrize(
@@ -738,7 +882,15 @@ def test_set_filter_field(dataset_id: str, return_model: Records, filter_field: 
     ],
 )
 def test_set_filter_fields(
-    dataset_id: str, return_model: Records, filter_fields: list[FilterField] | None, expected: dict
+    dataset_id: str,
+    return_model: Records,
+    filter_fields: list[FilterField] | None,
+    expected: dict,
 ) -> None:
     """Test set_filter_field builds properly."""
-    assert expected == QueryDocument(dataset_id, return_model).set_filter_fields(filter_fields).build()
+    assert (
+        expected
+        == QueryDocument(dataset_id, return_model)
+        .set_filter_fields(filter_fields)
+        .build()
+    )

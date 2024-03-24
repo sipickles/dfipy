@@ -18,12 +18,20 @@ class Point:
     def __init__(self, lon: float, lat: float) -> None:
         """Create a Point from coordinates and checks bounds.
 
-        :param lon: longitude
-        :param lat: latitude
-        :raises:
-            - `LongitudeOutOfBoundsError`
-            - `LatitudeOutOfBoundsError`
-        :example:
+        Parameters
+        ----------
+        lon:
+            longitude
+        lat:
+            latitude
+
+        Raises
+        ------
+        LongitudeOutOfBoundsError
+        LatitudeOutOfBoundsError
+
+        Examples
+        --------
         ```python
         Point(0.0, 1.0)
         ```
@@ -63,8 +71,9 @@ class Point:
     def _validate_latitude(lat: float) -> None:
         """Validate the bounds of the latitude.
 
-        :return self:
-        :raises: `LatitudeOutOfBoundsError`
+        Raises
+        ------
+        LatitudeOutOfBoundsError
         """
         if not LATITUDE_MIN < lat < LATITUDE_MAX:
             raise LatitudeOutOfBoundsError(f"Latitude value '{lat}' not within ({LATITUDE_MIN}, {LATITUDE_MAX})")
@@ -73,8 +82,9 @@ class Point:
     def _validate_longitude(lon: float) -> None:
         """Validate the bounds of the latitude.
 
-        :return self:
-        :raises: `LongitudeOutOfBoundsError`
+        Raises
+        ------
+        LongitudeOutOfBoundsError
         """
         if not LONGITUDE_MIN < lon < LONGITUDE_MAX:
             raise LongitudeOutOfBoundsError(f"Longitude value '{lon}' not within ({LONGITUDE_MIN}, {LONGITUDE_MAX})")
@@ -83,8 +93,9 @@ class Point:
     def _validate_altitude(alt: float) -> None:
         """Validate the bounds of the latitude.
 
-        :return self:
-        :raises: `AltitudeOutOfBoundsError`
+        Raises
+        ------
+        AltitudeOutOfBoundsError
         """
         if not ALTITUDE_MIN < alt < ALTITUDE_MAX:
             raise AltitudeOutOfBoundsError(f"Altitude value '{alt}' not within ({ALTITUDE_MIN}, {ALTITUDE_MAX})")
@@ -92,18 +103,19 @@ class Point:
     def validate(self) -> Self:
         """Validate the Point.
 
-        :return self:
-        :raises:
-            - `LongitudeOutOfBoundsError`
-            - `LatitudeOutOfBoundsError`
+        Returns
+        -------
+        Point
+
+        Raises
+        ------
+        LongitudeOutOfBoundsError
+        LatitudeOutOfBoundsError
         """
         self._validate_longitude(self._lon)
         self._validate_latitude(self._lat)
         return self
 
     def build(self) -> tuple[float, float]:
-        """Return values formatted for the Query Document.
-
-        :return: formatted for Query Document
-        """
+        """Return values formatted for the Query Document."""
         return (self._lon, self._lat)

@@ -1,4 +1,4 @@
-"""Unit tests for Ingest construction classes"""
+"""Unit tests for Ingest construction classes."""
 
 from dfi.services.ingest import AWSCredentials, BatchS3Files, BatchURLFiles, CSVFormat
 

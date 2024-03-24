@@ -28,14 +28,10 @@ tqdm = "^4.65.0"
 pyarrow = "14.0.1"
 boto3 = "^1.34.19"
 natsort = "^8.4.0"
-sqloxide = "^0.1.43"
+typing-extensions = "^4.10.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
 coverage = "^7.2.5"
-flake8 = "^6.0.0"
-isort = "^5.12.0"
-pylint = "^3.0.3"
 pytest = "^7.2.2"
 pytest-dotenv = "^0.5.2"
 pytest-order = "^1.1.0"
@@ -43,27 +39,18 @@ ipykernel = "^6.25.2"
 pytest-dependency = "^0.5.1"
 ruff = "^0.2.1"
 mypy = "^1.8.0"
-typing-extensions = "^4.9.0"
+types-requests = "^2.31.0.20240310"
+jupyterlab = "^4.1.4"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-myst_parser = "^2.0.0"
-sphinx = "^7.0.1"
-sphinx-autodoc2 = "^0.5.0"
-sphinx-favicon = "^1.0.1"
-sphinxcontrib-napoleon = "^0.7"
-sphinx-copybutton = "^0.5.2"
-sphinx-design = "^0.5.0"
-sphinx-togglebutton = "^0.3.2"
-sphinx-book-theme = "^1.1.0"
-sphinx-rtd-theme = "^2.0.0"
-alabaster = "^0.7.15"
-furo = "^2023.9.10"
-pydata-sphinx-theme = "^0.15.2"
-sphinx-autobuild = "^2021.3.14"
-sphinxext-opengraph = "^0.9.1"
+mkdocs-material = "^9.5.12"
+mkdocstrings = {extras = ["python"], version = "^0.24.1"}
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+black = "^24.2.0" # mkdocs uses black for formatting
 
 
 [build-system]
@@ -90,70 +77,6 @@ show_error_context = true
 # warn_return_any = true
 no_warn_return_any = true
 warn_unreachable = true
-
-
-[tool.black]
-line-length = 120
-target-version = ['py310']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-
-    # The following are specific to Black, you probably don't want those.
-    | blib2to3
-    | tests/data
-)/
-'''
-
-[tool.isort]
-profile = "black"
-py_version = "310"
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 120
-src_paths = ["./dfi", "./tests"]
-skip_glob = ["ci/cache"]
-
-
-[tool.pylint.'BASIC']
-good-names= ["df", "fp"]
-
-[tool.pylint.'MASTER']
-jobs = 0       # use all cores
-fail-under = 9
-
-[tool.pylint.'MESSAGES CONTROL']
-max-line-length = 120
-
-disable = [
-  "C0116", # missing-docstring
-  "C0301", # line-too-long
-  "W1401", # anomalous-backslash-in-string
-  "R0801", # similar-lines
-  "R0902", # too-many-instance-attributes
-  "R0903", # too-few-public-methods
-  "R0913", # too-many-arguments
-  "R1735", # use-dict-literal
-]
-
-[tool.pylint.'MISCELLANEOUS']
-notes = [
-  "TODO",
-  "FIXME",
-  "XXX",
-] # List of note tags to take in consideration, separated by a comma.
-
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "integration_tests"]
@@ -243,3 +166,9 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.per-file-ignores]
 "integration_tests/**/*.py" = ["D103", "PLR0913"]
 "tests/**/*.py" = ["D103", "PLR0913"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args=8

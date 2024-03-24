@@ -16,9 +16,9 @@ MIN_VERTICES = 4
 class Polygon:
     """A 2D Polygon as defined in GeoJSON https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6.
 
-    :::{attention}
-    Polygons should be composed of a singular linear ring.  MultiPolygons are not supported.
-    :::
+    ??? attention
+        Polygons should be composed of a singular linear ring.  MultiPolygons are not supported.
+
     """
 
     _coordinates: tuple[Point, ...]
@@ -39,22 +39,45 @@ class Polygon:
     def from_geojson(self, geojson: dict[str, Any]) -> Self:
         """Create a Polygon from a given GeoJSON Polygon.
 
-        :param geojson: a geojson dictionary.
-        :raises:
-            - `PolygonUndefinedError`
-            - `LinearRingError`
-            - `PolygonNotClosedError`
-        :example:
+        Parameters
+        ----------
+        geojson:
+            a geojson dictionary.
+
+        Raises
+        ------
+        LinearRingError
+        PolygonNotClosedError
+        PolygonUndefinedError
+
+        Examples
+        --------
         ### Polygon from Points
         ```python
         geojson = {
             "type": "Polygon",
-            "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]],
+            "coordinates": [
+                [
+                    [0.0, 0.0],
+                    [1.0, 0.0],
+                    [1.0, 1.0],
+                    [0.0, 1.0],
+                    [0.0, 0.0],
+                ]
+            ],
         }
         Polygon().from_geojson(geojson)
         ```
         ```python
-        Polygon((Point(0.0, 0.0), Point(0.0, 1.0), Point(1.0, 1.0), Point(1.0, 0.0), Point(0.0, 0.0)))
+        Polygon(
+            (
+                Point(0.0, 0.0),
+                Point(0.0, 1.0),
+                Point(1.0, 1.0),
+                Point(1.0, 0.0),
+                Point(0.0, 0.0),
+            )
+        )
         ```
         """
         match geometry := geojson.get("type"):
@@ -71,23 +94,50 @@ class Polygon:
     def from_points(self, coordinates: list[Point], geojson: bool = True) -> Self:
         """Create a Polygon from given coordinates.
 
-        :param coordinates: a list of Points.
-        :param geojson: (default `True`)
+        Parameters
+        ----------
+        coordinates:
+            a list of Points.
+        geojson:
+            indicates if coordinate order follow GeoJSON specification.
+
             - if `True` expects coordinates with the form (longitude, latitude)
             - if `False` expects coordinates with the form (latitude, longitude)
-        :raises:
-            - `PolygonUndefinedError`
-            - `LinearRingError`
-            - `PolygonNotClosedError`
-        :example:
+
+        Returns
+        -------
+        Polygon
+
+        Raises
+        ------
+        LinearRingError
+        PolygonNotClosedError
+        PolygonUndefinedError
+
+        Examples
+        --------
         ### Polygon from Points
         ```python
-        raw_coords = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+        raw_coords = [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+        ]
         points = [Point(p.lon, p.lat) for p in raw_coords]
         Polygon().from_points(points)
         ```
         ```python
-        Polygon((Point(0.0, 0.0), Point(0.0, 1.0), Point(1.0, 1.0), Point(1.0, 0.0), Point(0.0, 0.0)))
+        Polygon(
+            (
+                Point(0.0, 0.0),
+                Point(0.0, 1.0),
+                Point(1.0, 1.0),
+                Point(1.0, 0.0),
+                Point(0.0, 0.0),
+            )
+        )
         ```
         """
         match coordinates:
@@ -105,16 +155,28 @@ class Polygon:
     def from_raw_coords(self, coordinates: list[RawCoords], geojson: bool = True) -> Self:
         """Create a Polygon from given coordinates.
 
-        :param coordinates: a list of RawCoords (i.e. list[float, float]).
-        :param geojson: (default `True`)
+        Parameters
+        ----------
+        coordinates:
+            a list of RawCoords (i.e. list[float, float]).
+        geojson:
+            indicates if coordinate order follow GeoJSON specification.
+
             - if `True` expects coordinates with the form (longitude, latitude)
             - if `False` expects coordinates with the form (latitude, longitude)
-        :returns self:
-        :raises:
-            - `PolygonUndefinedError`
-            - `LinearRingError`
-            - `PolygonNotClosedError`
-        :example:
+
+        Returns
+        -------
+        Polygon
+
+        Raises
+        ------
+        LinearRingError
+        PolygonNotClosedError
+        PolygonUndefinedError
+
+        Examples
+        --------
         ### Polygon from RawCoords
         From RawCoords is useful when the coordinates of the Polygon are in a list.
         ```python
@@ -123,7 +185,15 @@ class Polygon:
         Polygon().from_raw_coords(raw_coords)
         ```
         ```python
-        Polygon((Point(0.0, 0.0), Point(0.0, 1.0), Point(1.0, 1.0), Point(1.0, 0.0), Point(0.0, 0.0)))
+        Polygon(
+            (
+                Point(0.0, 0.0),
+                Point(0.0, 1.0),
+                Point(1.0, 1.0),
+                Point(1.0, 0.0),
+                Point(0.0, 0.0),
+            )
+        )
         ```
         """
         if geojson:
@@ -136,11 +206,15 @@ class Polygon:
     def validate(self) -> Self:
         """Validate the Polygon.
 
-        :returns self:
-        :raises:
-            - `PolygonUndefinedError`
-            - `LinearRingError`
-            - `PolygonNotClosedError`
+        Returns
+        -------
+        Polygon
+
+        Raises
+        ------
+        LinearRingError
+        PolygonNotClosedError
+        PolygonUndefinedError
         """
         if not hasattr(self, "_coordinates"):
             raise PolygonUndefinedError

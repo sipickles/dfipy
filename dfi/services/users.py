@@ -1,36 +1,43 @@
-"""
-Manages user authentication via the User Management API service.
-"""
-from typing import List
+"""Manages user authentication via the User Management API service."""
 
 from dfi.connect import Connect
 
 
 class Users:
-    """
-    Class responsible handling users.
-    """
+    """Class responsible handling users."""
 
     def __init__(self, conn: Connect) -> None:
         self.conn = conn
 
     def __repr__(self) -> str:
+        """Class representation."""
         return f"{self.__class__.__name__}({self.conn!r})"
 
     def __str__(self) -> str:
+        """Class string formatting."""
         return f"""Instance of dfi.{self.__class__.__name__} composed with: {self.conn!s}"""
 
     def create_user(self, user: dict) -> dict:
-        """
-        Create a new user.
+        """Create a new user.
 
-        :::{hint}
-        You need to be an admin for this request.
-        :::
+        ??? info "Endpoint"
+            [POST /v1/users](https://api.prod.generalsystem.com/docs/api#/User%20Management%20(v1)/post_v1_users)
 
-        :param user: a user specification to create.
-        :return: the created user.
-        :example:
+        ??? tip "Admin Request"
+            You need to be an admin for this request.
+
+        Parameters
+        ----------
+        user:
+            a user specification to create.
+
+        Returns
+        -------
+        user:
+            the created user.
+
+        Examples
+        --------
         ```python
         from dfi import Client
 
@@ -45,7 +52,7 @@ class Users:
             "emails": [
                 {
                     "value": "iain.m.banks@organization.com",
-                    "primary": True
+                    "primary": True,
                 }
             ],
             "active": True,
@@ -53,22 +60,27 @@ class Users:
         created_user = dfi.users.create_user(user)
         ```
         """
-        with self.conn.api_post("v1/users", payload=user, stream=False) as response:
+        with self.conn.api_post("v1/users", json=user, stream=False) as response:
             response.raise_for_status()
             created_user: dict = response.json()
             return created_user
 
-    def get_users(self) -> List[dict]:
-        """
-        Retrieve the list of users in the realm. You need to be an admin for this request.
+    def get_users(self) -> list[dict]:
+        """Retrieve the list of users in the realm.
 
-        :::{hint}
-        You need to be an admin for this request.
-        :::
+        ??? info "Endpoint"
+            [GET /v1/users](https://api.prod.generalsystem.com/docs/api#/User%20Management%20(v1)/get_v1_users)
 
-        :param user_id: an id of a user.
-        :return: the identity of the given id.
-        :example:
+        ??? tip "Admin Request"
+            You need to be an admin for this request.
+
+        Returns
+        -------
+        identity:
+            the identity of the given id.
+
+        Examples
+        --------
         ```python
         from dfi import Client
 
@@ -79,20 +91,30 @@ class Users:
         """
         with self.conn.api_get("v1/users", stream=False) as response:
             response.raise_for_status()
-            users: List[dict] = response.json()
+            users: list[dict] = response.json()
             return users
 
     def get_user(self, user_id: str) -> dict:
-        """
-        Retrieve details about a user by id.
+        """Retrieve details about a user by id.
 
-        :::{hint}
-        You need to be an admin for this request.
-        :::
+        ??? info "Endpoint"
+            [GET /v1/users/{id}](https://api.prod.generalsystem.com/docs/api#/User%20Management%20(v1)/get_v1_users__id_)
 
-        :param user_id: an id of a user.
-        :return: the identity of the given id.
-        :example:
+        ??? tip "Admin Request"
+            You need to be an admin for this request.
+
+        Parameters
+        ----------
+        user_id:
+            an id of a user.
+
+        Returns
+        -------
+        identity:
+            the identity of the given id.
+
+        Examples
+        --------
         ```python
         from dfi import Client
 
@@ -107,16 +129,26 @@ class Users:
             return user
 
     def delete_user(self, user_id: str) -> None:
-        """
-        Removes a user from the system. This removes all identities and access tokens that exist for the user as well.
+        """Remove a user from the system. This removes all identities and access tokens that exist for the user as well.
 
-        :::{hint}
-        You need to be an admin for this request.
-        :::
+        ??? info "Endpoint"
+            [DELETE /v1/users/{id}](https://api.prod.generalsystem.com/docs/api#/User%20Management%20(v1)/delete_v1_users__id_)
 
-        :param user_id: an id of a user.
-        :return: the identity of the given id.
-        :example:
+        ??? tip "Admin Request"
+            You need to be an admin for this request.
+
+        Parameters
+        ----------
+        user_id:
+            an id of a user.
+
+        Returns
+        -------
+        identity:
+            the identity of the given id.
+
+        Examples
+        --------
         ```python
         from dfi import Client
 

@@ -82,9 +82,9 @@ class QueryDocument:
     def validate(self) -> Self:
         """Validate the QueryDocument.
 
-        :return self:
-        :raises:
-            - `InvalidQueryDocument`
+        Raises
+        ------
+        InvalidQueryDocument
         """
         self._validate_dataset_id(self._dataset_id)
         self._validate_return_model(self._return_model)
@@ -96,7 +96,10 @@ class QueryDocument:
     def _validate_dataset_id(dataset_id: str) -> None:
         """Check that a dataset_id is set and is a string.
 
-        :param dataset_id: a dataset id.
+        Parameters
+        ----------
+        dataset_id:
+            a dataset id.
         """
         match dataset_id:
             case str():
@@ -108,7 +111,10 @@ class QueryDocument:
     def _validate_return_model(return_model: Records | Count) -> None:
         """Check that a return_model is set and is a Records | Count.
 
-        :param return_model: How results should be returned.
+        Parameters
+        ----------
+        return model:
+            How results should be returned.
         """
         match return_model:
             case Records() | Count():
@@ -120,8 +126,16 @@ class QueryDocument:
     def _validate_only_filter(only: Only | str | None, return_model: Records | Count) -> None:
         """Check that an only filter and return_model combination is valid.
 
-        :param only: Only filter.
-        :param return_model: How results should be returned.
+        Parameters
+        ----------
+        only:
+            Only filter.
+        return model:
+            How results should be returned.
+
+        Returns
+        -------
+        None
         """
         match only, return_model:
             case None, Records() | Count():
@@ -138,7 +152,10 @@ class QueryDocument:
     def build(self) -> dict:
         """Return a formatted Query Document.
 
-        :return: formatted  Query Document
+        Returns
+        -------
+        document:
+            formatted  Query Document
         """
         self.validate()
         return dict(sorted(self._document.items(), key=lambda x: x[0]))
@@ -289,8 +306,11 @@ class QueryDocument:
         - An existing FilterField will be overwritten by a new FilterField with the same name.
         - Possibility that more fields can be set than are allowed.  The API will catch this error.
 
-        :param filter_fields:
-            - If `list[FilterField]` will iteratively add each field.
+        Parameters
+        ----------
+        filter_fields:
+
+            - If `list[FilterField]`, will iteratively add each field.
             - If `None`, will delete all existing filter fields.
         """
         match filter_fields:

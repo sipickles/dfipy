@@ -41,7 +41,10 @@ class Count:
     def _validate_groupby(self, groupby: GroupBy | str | None) -> GroupBy | None:
         """Validate the include list.
 
-        :param include: Can be a GroupBy object or a str that can be used to create a GroupBy object or None.
+        Parameters
+        ----------
+        include:
+            Can be a GroupBy object or a str that can be used to create a GroupBy object or None.
         """
         match groupby:
             case None | GroupBy():

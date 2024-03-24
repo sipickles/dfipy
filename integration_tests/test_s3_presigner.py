@@ -1,4 +1,5 @@
-"""Unit tests for Ingest S3URLPresigner"""
+"""Unit tests for Ingest S3URLPresigner."""
+
 import os
 
 import pytest
@@ -9,16 +10,17 @@ TEST_DATASET_S3_BUCKET = "dev-ta-platform-dev-datasets"
 TEST_DATASET_S3_PREFIX = "test/integration-tests/100k_with_filter_fields_epoc_2023-11-08"
 TEST_DATASET_S3_REGION = "eu-west-2"
 AWS_PROFILE = os.environ["AWS_PROFILE"]  # TODO change this once dev-ops have enabled AWS SSO access
+NUM_FILES = 9  # in dataset
 
 
 @pytest.fixture(name="s3_presigner", scope="module")
-def get_s3_presigner() -> str:
+def get_s3_presigner() -> S3URLPresigner:
     return S3URLPresigner(TEST_DATASET_S3_BUCKET, TEST_DATASET_S3_REGION, AWS_PROFILE)
 
 
 def test_find_files(s3_presigner: S3URLPresigner) -> None:
     files = s3_presigner.find_files(TEST_DATASET_S3_PREFIX, ".csv")
-    assert len(files) == 9
+    assert len(files) == NUM_FILES
 
 
 def test_generate_presigned_url(s3_presigner: S3URLPresigner) -> None:
@@ -31,4 +33,4 @@ def test_generate_presigned_url(s3_presigner: S3URLPresigner) -> None:
 
 def test_generate_presigned_urls(s3_presigner: S3URLPresigner) -> None:
     signed_urls = s3_presigner.generate_presigned_urls(TEST_DATASET_S3_PREFIX, ".csv", expiration=1)
-    assert len(signed_urls) == 9
+    assert len(signed_urls) == NUM_FILES

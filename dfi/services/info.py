@@ -24,13 +24,21 @@ class Info:
         return version
 
     def api_version(self) -> str:
-        """Return the version of the Data Flow Index (DFI) API."""
+        """Return the version of the Data Flow Index (DFI) API.
+
+        ??? info "Endpoint"
+            `GET version`
+        """
         with self.conn.api_get("version", stream=False, params=None) as response:
             response.raise_for_status()
             return response.text
 
     def product_version(self) -> str:
-        """Return the Data Flow Index (DFI) product version."""
+        """Return the Data Flow Index (DFI) product version.
+
+        ??? info "Endpoint"
+            `GET product/version`
+        """
         with self.conn.api_get("product/version", stream=False, params=None) as response:
             response.raise_for_status()
             return response.text

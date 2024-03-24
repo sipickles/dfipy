@@ -1,7 +1,9 @@
 """Pytest configuration file."""
 
 import os
+from collections.abc import Generator
 from dataclasses import dataclass
+from typing import Any
 
 import pytest
 
@@ -16,8 +18,9 @@ TEST_USER_NAME = "iain.m.banks"
 class ValueStore:
     """Used to store and reuse values across tests."""
 
-    dataset_id: str | None = None
-    import_batch_id: str | None = None
+    dataset_id: str = ""
+    dataset_name: str = ""
+    import_batch_id: str = ""
 
 
 @pytest.fixture(name="value_store", scope="session")
@@ -26,12 +29,12 @@ def get_value_store() -> ValueStore:
 
 
 @pytest.fixture(name="test_user_name", scope="session")
-def test_user_name() -> dict:
+def test_user_name() -> str:
     return TEST_USER_NAME
 
 
 @pytest.fixture(name="test_user", scope="session")
-def test_user() -> dict:
+def test_user() -> dict[str, Any]:
     return {
         "userName": TEST_USER_NAME,
         "name": {"givenName": "Iain", "familyName": "Banks"},
@@ -47,6 +50,30 @@ def get_test_identity() -> str:
     identities = dfi.identities.get_identities()
     for identity in identities:
         if identity["name"] == TEST_USER_NAME:
-            return identity["id"]
+            identity_id: str = identity["id"]
+            return identity_id
 
     raise ValueError(f"No user found for '{TEST_USER_NAME}'")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def setup_teardown() -> Generator[Any, Any, Any]:
+    # SETUP
+    dfi = Client(TOKEN, URL)
+
+    # Clears user from DB if tests fail to delete
+    users = dfi.users.get_users()
+    for user in users:
+        if user["userName"] == TEST_USER_NAME:
+            dfi.users.delete_user(user["id"])
+
+    # TEST CODE
+    yield
+
+    # TEARDOWN
+
+    # Clears user from DB if tests fail to delete
+    users = dfi.users.get_users()
+    for user in users:
+        if user["userName"] == TEST_USER_NAME:
+            dfi.users.delete_user(user["id"])
