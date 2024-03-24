@@ -35,7 +35,7 @@ class FilterOperator(str, Enum):
     """Enumerates the valid operations on FilterFields."""
 
     LT = "lt"
-    LG = "gt"
+    GT = "gt"
     GTE = "gte"
     LTE = "lte"
     EQ = "eq"
@@ -164,12 +164,13 @@ class FilterField:
         self._filter_field_operation_is_valid(self._field_type, self._operation)
 
         if schema:
-            _logger.info("No schema provided skipping validation on field name and nullability.")
             self._validate_filter_field_name_in_schema(self._name, schema)
             self._validate_filter_field_type_matches_schema(self._name, self._field_type, schema)
             self._validate_filter_field_nullability(self._name, self._nullable, schema)
             self._filter_field_value_is_valid(self._name, self._value, schema)
-
+        else:
+            _logger.warn("No schema provided skipping validation on field name and nullability.")
+            
         return self
 
     def build(self) -> dict:
