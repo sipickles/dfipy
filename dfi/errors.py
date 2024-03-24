@@ -112,3 +112,7 @@ class NoEventsRecievedError(Exception):
 
 class InvalidQueryDocument(Exception):
     """Raised when a QueryDocument is invalid."""
+
+
+class SQLParseError(Exception):
+    """Raised when a SQL sttring is unsupported."""
