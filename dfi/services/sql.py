@@ -3,6 +3,7 @@ from sqloxide import parse_sql
 from datetime import datetime
 from pytz import timezone
 
+from dfi.errors import SQLParseError
 from dfi.models.filters import FilterField, FilterOperator, FieldType, Only, TimeRange
 from dfi.models.filters.geometry import Polygon
 from dfi.models.query_document import QueryDocument
@@ -10,10 +11,6 @@ from dfi.models.returns.count import Count
 from dfi.models.returns.records import Records
 
 from dfi.services.query import Query
-
-
-class SQLParseError(Exception):
-    pass
 
 
 class QueryParameters(dict):
