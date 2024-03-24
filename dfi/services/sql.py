@@ -1,6 +1,5 @@
 import pandas as pd
 from sqloxide import parse_sql
-import pprint
 from datetime import datetime
 from pytz import timezone
 
@@ -8,10 +7,13 @@ from dfi.models.filters import FilterField, FilterOperator, FieldType, Only, Tim
 from dfi.models.filters.geometry import Polygon
 from dfi.models.query_document import QueryDocument
 from dfi.models.returns.count import Count
-from dfi.models.returns.records import Records, IncludeField
+from dfi.models.returns.records import Records
 
 from dfi.services.query import Query
 
+
+class SQLParseError(Exception):
+    pass
 
 
 class QueryParameters(dict):
@@ -37,7 +39,6 @@ class QueryDocumentBuilder:
     def __init__(self, sql: str):
         self.parameters = QueryParameters()
         self.tree_list = parse_sql(sql, QueryDocumentBuilder.DIALECT)
-        pprint.pprint(self.tree_list)
         
         for tree in self.tree_list:
             keyword = list(tree.keys())[0]
@@ -45,7 +46,7 @@ class QueryDocumentBuilder:
                 case "Query":
                     self._query(tree[keyword])
                 case _:
-                    raise RuntimeError(f"Unsupported keyword: {keyword}")
+                    raise SQLParseError(f"Unsupported keyword: {keyword}")
 
     def build(self) -> QueryDocument:
         return_model = None
@@ -137,7 +138,7 @@ class QueryDocumentBuilder:
 
     def _from(self, from_list: list):
         if len(from_list) > 1:
-            raise RuntimeError(f"Only single from statement is supported")
+            raise SQLParseError(f"Only single from statement is supported")
         
         first_from = from_list[0]
         table_name_list = first_from["relation"]["Table"]["name"]
@@ -158,14 +159,14 @@ class QueryDocumentBuilder:
                 case "Function": 
                     self._selection_function(op)
                 case _:
-                    raise RuntimeError(f"Unhandled op: {op_type}")
+                    raise SQLParseError(f"Unhandled op: {op_type}")
 
     def _group_by(self, tree: dict):
         expression_list = tree["Expressions"]
         for expression in expression_list:
             value = expression["Identifier"]["value"]
             if "group_by" in self.parameters:
-                raise RuntimeError("Group by is already set")
+                raise SQLParseError("Group by is already set")
             else:
                 self.parameters["group_by"] = value
         
@@ -183,7 +184,7 @@ class QueryDocumentBuilder:
                 case "Between":
                     self._selection_between(tree["left"]["Between"])
                 case _:
-                    raise RuntimeError(f"Unsupported type: {left_type}")
+                    raise SQLParseError(f"Unsupported type: {left_type}")
             
             match right_type:
                 case "BinaryOp":
@@ -191,7 +192,7 @@ class QueryDocumentBuilder:
                 case "Between":
                     self._selection_between(tree["right"]["Between"])
                 case _:
-                    raise RuntimeError(f"Unsupported type: {right_type}")
+                    raise SQLParseError(f"Unsupported type: {right_type}")
                 
         else:
             name = tree["left"]["Identifier"]["value"]
@@ -223,7 +224,7 @@ class QueryDocumentBuilder:
                     mapped_type = FieldType.SIGNED_NUMBER # ????
 
                 case _:
-                    raise RuntimeError(f"Unsupported Value type: {value_type}")
+                    raise SQLParseError(f"Unsupported Value type: {value_type}")
         
             mapped_operator = QueryDocumentBuilder.OPERATOR_MAP.get(operator)
 
@@ -254,13 +255,13 @@ class QueryDocumentBuilder:
                     case "SingleQuotedString":
                         low_str = low_value[low_value_type]
                     case _:
-                        raise RuntimeError(f"Unsupported time type: {low_value_type}")
+                        raise SQLParseError(f"Unsupported time type: {low_value_type}")
                     
                 match high_value_type:
                     case "SingleQuotedString":
                         high_str = high_value[high_value_type]
                     case _:
-                        raise RuntimeError(f"Unsupported time type: {high_value_type}")
+                        raise SQLParseError(f"Unsupported time type: {high_value_type}")
                
                 low_datetime = self._parse_datetime(low_str)
                 high_datetime = self._parse_datetime(high_str)
@@ -302,7 +303,7 @@ class QueryDocumentBuilder:
     def _selection_function(self, tree: dict):
         function_count = len(tree["name"])
         if function_count > 1:
-            raise RuntimeError("Only a single function is supported")
+            raise SQLParseError("Only a single function is supported")
         
         name = tree["name"][0]["value"]
         args = tree["args"][0]
@@ -313,7 +314,7 @@ class QueryDocumentBuilder:
             case "ST_GeomFromText":
                 return self._ST_GeomFromLine(args)
             case _:
-                raise RuntimeError(f"Unsupported function: {name}")
+                raise SQLParseError(f"Unsupported function: {name}")
             
     def _ST_MakePolygon(self, args: dict):
         name = list(args.keys())[0]
@@ -325,7 +326,7 @@ class QueryDocumentBuilder:
                 polygon_list = self._selection_function(expr[expr_name])
                 self.parameters["polygon"] = polygon_list
             case _:
-                raise RuntimeError(f"Unsupported expression in ST_MakePolygon: {expr_name}")
+                raise SQLParseError(f"Unsupported expression in ST_MakePolygon: {expr_name}")
 
     def _ST_GeomFromLine(self, args: dict) -> list[tuple[float]]:
         name = list(args.keys())[0]
@@ -339,7 +340,7 @@ class QueryDocumentBuilder:
             case "LINESTRING":
                 return self._line_string(value_list)
             case _:
-                raise RuntimeError(f"Unsupported geometry type: {geom_type}")
+                raise SQLParseError(f"Unsupported geometry type: {geom_type}")
             
     def _line_string(self, value_pairs: list[str]) -> list[tuple[float]]:
         vertices = []
