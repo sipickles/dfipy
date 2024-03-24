@@ -13,9 +13,15 @@ def test_query_document_builder(test_name: str, sql_statement: str, expected_que
     print(test_name)
     builder = QueryDocumentBuilder(sql_statement)
     actual = builder.build()
+    actual_query_doc = actual.build()
 
-    pprint.pprint(actual)
     print("-" * 80)
+    print(sql_statement)
+    print("-" * 80)
+    print("expected")
     pprint.pprint(expected_query_doc)
+    print("-" * 80)
+    print("actual")
+    pprint.pprint(actual_query_doc)
 
-    assert actual == expected_query_doc
+    assert actual_query_doc == expected_query_doc

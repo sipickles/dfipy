@@ -5,6 +5,7 @@ test_data = [
         "select records from 'gs'.'big-data';",
         {
             "datasetId": "gs.big-data",
+            'filters': {},
             "return": {"type": "records"},
         },
     ),
@@ -13,6 +14,7 @@ test_data = [
         "select count from 'gs'.'big-data';",
         {
             "datasetId": "gs.big-data",
+            'filters': {},
             "return": {"type": "count"},
         },
     ),
@@ -30,7 +32,25 @@ test_data = [
         },
     ),
     (
-        "Count all records that match all filter fields",
+        "Count all records that match two filter fields",
+        "select count "
+        "from 'gs'.'big-data' "
+        "where ip = '10.192.43.111' "
+        "and signalStrength < 30 "
+        ";",
+        {
+            "datasetId": "gs.big-data",
+            "filters": {
+                "fields": {
+                    "ip": {"eq": "10.192.43.111"},
+                    "signalStrength": {"lt": 30},
+                }
+            },
+            "return": {"type": "count"},
+        },
+    ),
+    (
+        "Count all records that match three filter fields",
         "select count "
         "from 'gs'.'big-data' "
         "where ip = '10.192.43.111' "
@@ -93,30 +113,34 @@ test_data = [
             "return": {"type": "count"},
         },
     ),
-    # Expressed with WKT: https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+    # ST types: https://postgis.net/docs/ST_MakePolygon.html
     (
         "Count all records in a polygon",
         "select records "
         "from 'gs'.'big-data' "
-        "where POLYGON(("
+        "where ST_MakePolygon("
+        "ST_GeomFromText("
+        "'LINESTRING("
         "-3.2018689 55.9478931, "
         "-3.2002789 55.9450483, "
         "-3.1739289 55.9504792, "
         "-3.1757763 55.9528911, "
         "-3.2018689 55.9478931"
-        "))"
+        ")'"
+        ")"
+        ")"
         ";",
         {
             "datasetId": "gs.big-data",
             "filters": {
                 "geo": {
-                    "coordinates": [
-                        [-3.2018689, 55.9478931],
-                        [-3.2002789, 55.9450483],
-                        [-3.1739289, 55.9504792],
-                        [-3.1757763, 55.9528911],
-                        [-3.2018689, 55.9478931],
-                    ],
+                    "coordinates": (
+                        (-3.2018689, 55.9478931) ,
+                        (-3.2002789, 55.9450483),
+                        (-3.1739289, 55.9504792),
+                        (-3.1757763, 55.9528911),
+                        (-3.2018689, 55.9478931),
+                    ),
                     "type": "Polygon",
                 }
             },
@@ -146,7 +170,7 @@ test_data = [
         "select records from 'gs'.'big-data' where time between '2023-01-01' and '2023-02-28';",
         {
             "datasetId": "gs.big-data",
-            "filters": {"time": {"maxTime": "2023-02-28T00:00:00.000Z", "minTime": "2023-01-01T00:00:00.000Z"}},
+            "filters": {"time": {"maxTime": "2023-02-28T00:00:00+00:00", "minTime": "2023-01-01T00:00:00+00:00"}},
             "return": {"type": "records"},
         },
     ),
@@ -154,11 +178,11 @@ test_data = [
         "Find all records between two milliseconds",
         "select records "
         "from 'gs'.'big-data' "
-        "where time between '2023-01-01 00:00:00.000' and '2023-02-28 23:59:59.999' "
+        "where time between '2023-01-01 00:00:00' and '2023-02-28 23:59:59' "
         ";",
         {
             "datasetId": "gs.big-data",
-            "filters": {"time": {"maxTime": "2023-02-28T23:59:59.999Z", "minTime": "2023-01-01T00:00:00.000Z"}},
+            "filters": {"time": {"maxTime": "2023-02-28T23:59:59+00:00", "minTime": "2023-01-01T00:00:00+00:00"}},
             "return": {"type": "records"},
         },
     ),
@@ -207,11 +231,11 @@ test_data = [
     (
         "Time filter and Group by",
         "select count from 'gs'.'big-data' "
-        "where time between '2023-01-01 00:00:00.000' and '2023-02-28 23:59:59.999' "
+        "where time between '2023-01-01 00:00:00' and '2023-02-28 23:59:59' "
         "group by uniqueId;",
         {
             "datasetId": "gs.big-data",
-            "filters": {"time": {"maxTime": "2023-02-28T23:59:59.999Z", "minTime": "2023-01-01T00:00:00.000Z"}},
+            "filters": {"time": {"maxTime": "2023-02-28T23:59:59+00:00", "minTime": "2023-01-01T00:00:00+00:00"}},
             "return": {
                 "type": "count",
                 "groupBy": {
@@ -220,4 +244,10 @@ test_data = [
             },
         },
     ),
+    # (
+    #     "Insert",
+    #     # To support hyphens, use single quoted table names
+    #     "insert into 'gs'.'big-data' values (0.1, 0.2, 'hello');",
+    #     {},
+    # ),
 ]
